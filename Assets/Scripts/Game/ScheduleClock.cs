@@ -19,6 +19,7 @@ public class ScheduleClock : MonoBehaviour
 
     void Update()
     {
+        // 使用 TimeManager 的 DeltaTime，这样在暂停时不会增加时间
         simSeconds += TimeManager.Instance.DeltaTime;
     }
 
@@ -39,5 +40,17 @@ public class ScheduleClock : MonoBehaviour
     {
         var midnight = DateTime.Today;
         return midnight.AddSeconds(s);
+    }
+
+    // 获取当前游戏时间（用于UI显示等）
+    public DateTime GetCurrentGameTime()
+    {
+        return SecondsToTime(simSeconds);
+    }
+
+    // 获取从开始到现在经过的游戏时间（小时）
+    public float GetElapsedGameHours()
+    {
+        return simSeconds / 3600f;
     }
 }

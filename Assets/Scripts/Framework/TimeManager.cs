@@ -8,52 +8,61 @@ public class TimeManager : Singleton<TimeManager>
     // 用于处理暂停、恢复等功能的状态
     public bool IsPaused { get; private set; }
 
-    // 获取当前帧的时间（经过时间倍率调整）
+    // 时间倍率常数 (24:1 = 游戏内1小时=现实2.5分钟)
+    private const float REAL_TIME_FACTOR = 24f; // 24倍速
+    private const float REAL_SECONDS_PER_GAME_HOUR = 150f; // 2.5分钟 = 150秒
+
     public float DeltaTime
     {
         get
         {
             // 如果暂停，返回0，否则按时间倍率调整
-            return IsPaused ? 0f : Time.unscaledDeltaTime * TimeFactor;
+            return IsPaused ? 0f : Time.unscaledDeltaTime * TimeFactor * REAL_TIME_FACTOR;
         }
     }
 
-    // 获取固定更新的时间（经过时间倍率调整）
+    // 获取固定更新的时间
     public float FixedDeltaTime
     {
         get
         {
-            // 固定时间间隔也按时间倍率调整
-            return IsPaused ? 0f : 0.02f * TimeFactor; // 0.02f 是默认的 fixedDeltaTime
-        }
-    }
-
-    // 更新时间
-    private void Update()
-    {
-        if (!IsPaused)
-        {
-            // 手动更新deltaTime
-            Time.fixedDeltaTime = FixedDeltaTime;
-            Time.timeScale = DeltaTime;
+            return IsPaused ? 0f : Time.fixedUnscaledDeltaTime * TimeFactor * REAL_TIME_FACTOR;
         }
     }
 
     // 设置时间倍率
     public void SetTimeFactor(float factor)
     {
-        TimeFactor = factor;
+        TimeFactor = Mathf.Clamp(factor, 0f, 10f); // 限制在0-10倍之间
+        ApplyTimeScale();
     }
 
     // 暂停时间
     public void PauseTime()
     {
         IsPaused = true;
+        ApplyTimeScale();
     }
 
     // 恢复时间
     public void ResumeTime()
     {
         IsPaused = false;
+        ApplyTimeScale();
+    }
+
+    // 应用时间缩放
+    private void ApplyTimeScale()
+    {
+        if (IsPaused)
+        {
+            Time.timeScale = 0f;
+            Time.fixedDeltaTime = 0f;
+        }
+        else
+        {
+            Time.timeScale = TimeFactor;
+            Time.fixedDeltaTime = 0.02f * TimeFactor;
+        }
     }
 }

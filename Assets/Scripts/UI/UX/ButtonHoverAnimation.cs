@@ -169,20 +169,20 @@ public class ButtonHoverAnimation : MonoBehaviour, IPointerEnterHandler, IPointe
     private void PlayScaleAnimation(float targetScale)
     {
         transform.DOScale(originalScale * targetScale, animationDuration)
-                 .SetEase(easeType);
+                 .SetEase(easeType).SetUpdate(true);
     }
 
     private void PlayMoveAnimation(Vector2 offset)
     {
         Vector3 targetPosition = originalPosition + (Vector3)offset;
         transform.DOLocalMove(targetPosition, animationDuration)
-                 .SetEase(easeType);
+                 .SetEase(easeType).SetUpdate(true);
     }
 
     private void PlayRotationAnimation(float angle)
     {
         transform.DORotate(new Vector3(0, 0, angle), animationDuration)
-                 .SetEase(easeType);
+                 .SetEase(easeType).SetUpdate(true);
     }
 
     private void PlayColorAnimation(Color targetColor)
@@ -190,7 +190,7 @@ public class ButtonHoverAnimation : MonoBehaviour, IPointerEnterHandler, IPointe
         if (buttonImage != null)
         {
             buttonImage.DOColor(targetColor, animationDuration)
-                       .SetEase(easeType);
+                       .SetEase(easeType).SetUpdate(true);
         }
     }
 
@@ -207,7 +207,7 @@ public class ButtonHoverAnimation : MonoBehaviour, IPointerEnterHandler, IPointe
             hoverSequence.Join(buttonImage.DOColor(hoverColor, animationDuration));
         }
         
-        hoverSequence.SetEase(easeType);
+        hoverSequence.SetEase(easeType).SetUpdate(true);
     }
 
     private void PlayCombinedClickAnimation()
@@ -223,24 +223,24 @@ public class ButtonHoverAnimation : MonoBehaviour, IPointerEnterHandler, IPointe
             clickSequence.Join(buttonImage.DOColor(clickColor, animationDuration));
         }
         
-        clickSequence.SetEase(easeType);
+        clickSequence.SetEase(easeType).SetUpdate(true);
     }
 
     private void PlayResetAnimation()
     {
         transform.DOScale(originalScale, animationDuration)
-                 .SetEase(easeType);
+                 .SetEase(easeType).SetUpdate(true);
         
         transform.DOLocalMove(originalPosition, animationDuration)
-                 .SetEase(easeType);
+                 .SetEase(easeType).SetUpdate(true);
         
         transform.DORotate(originalRotation.eulerAngles, animationDuration)
-                 .SetEase(easeType);
+                 .SetEase(easeType).SetUpdate(true);
         
         if (buttonImage != null)
         {
             buttonImage.DOColor(originalColor, animationDuration)
-                       .SetEase(easeType);
+                       .SetEase(easeType).SetUpdate(true);
         }
     }
     #endregion

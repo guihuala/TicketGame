@@ -16,7 +16,11 @@ public class GameManager : Singleton<GameManager>
     void Start()
     {
         ticketGenerator = FindObjectOfType<TicketGenerator>();
-        selectedLevelIndex = PlayerPrefs.GetInt("SelectedLevelIndex", 0);  // 读取选择的关卡索引
+        selectedLevelIndex = PlayerPrefs.GetInt("SelectedLevelIndex", 0);
+
+        // 初始化时间管理器
+        TimeManager.Instance.SetTimeFactor(1f);
+        TimeManager.Instance.ResumeTime();
 
         // 加载对应的关卡数据
         ticketGenerator.SetLevel(selectedLevelIndex);
@@ -32,26 +36,26 @@ public class GameManager : Singleton<GameManager>
         switch (newState)
         {
             case GameState.Playing:
-                Time.timeScale = 1;
+                TimeManager.Instance.ResumeTime();
                 InputController.Instance.EnableInput(true);
                 UIManager.Instance.ClosePanel("PausePanel");
                 UIManager.Instance.ClosePanel("GameOverPanel");
                 break;
 
             case GameState.Paused:
-                Time.timeScale = 0;
+                TimeManager.Instance.PauseTime();
                 InputController.Instance.EnableInput(false);
                 UIManager.Instance.OpenPanel("PausePanel");
                 break;
 
             case GameState.GameOver:
-                Time.timeScale = 0;
+                TimeManager.Instance.PauseTime();
                 InputController.Instance.EnableInput(false);
                 UIManager.Instance.OpenPanel("GameOverPanel");
                 break;
         }
     }
-
+    
     #region 状态控制
 
     // 游戏开始
@@ -61,7 +65,12 @@ public class GameManager : Singleton<GameManager>
         if (currentLevel != null)
         {
             Debug.Log("Starting level: " + currentLevel.name);
-            // 你可以在这里做其他的初始化工作，比如初始化 UI、时间等
+            // 重置时间
+            var scheduleClock = FindObjectOfType<ScheduleClock>();
+            if (scheduleClock != null)
+            {
+                // todo.根据关卡设置初始时间
+            }
         }
         else
         {
@@ -92,20 +101,16 @@ public class GameManager : Singleton<GameManager>
     {
         SetGameState(GameState.GameOver);
     }
-
-    // 重新开始当前关卡
+    
     public void RestartCurrentLevel()
     {
-        // 重置游戏状态
         SetGameState(GameState.Playing);
         
-        // 重新加载当前关卡
-        ticketGenerator.SetLevel(selectedLevelIndex);
+        PlayerPrefs.SetInt("SelectedLevelIndex", selectedLevelIndex);
+        PlayerPrefs.Save();
         
-        // 重新开始游戏
-        StartGame();
-        
-        Debug.Log("Restarting current level: " + selectedLevelIndex);
+        // 重新加载当前游戏场景
+        SceneLoader.Instance.ReloadCurrentScene();
     }
 
     // 返回主菜单
