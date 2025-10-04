@@ -50,7 +50,7 @@ public class HudController : MonoBehaviour
         {
             // 将模拟时间转换为分钟：秒格式
             TimeSpan time = TimeSpan.FromSeconds(scheduleClock.simSeconds);
-            timeText.text = "Time: " + time.ToString(@"hh\:mm\:ss");  // 格式为小时:分钟:秒
+            timeText.text = time.ToString(@"hh\:mm");  // 格式为小时:分钟
         }
     }
     

@@ -25,25 +25,22 @@ public class TicketUI : MonoBehaviour
     public void BindTicket(TicketData data)
     {
         current = data;
+        Debug.Log($"Ticket type is {data.special},Ticket is{data.isValid}");
         if (visual != null) visual.SetTicket(current);
     }
 
     private void OnAcceptTicket()
     {
-        // 只有在等待玩家输入时才响应
         if (queue != null && queue.IsWaitingForInput())
         {
-            Debug.Log("Ticket Accepted");
             queue.AcceptCurrentTicket();
         }
     }
 
     private void OnRejectTicket()
     {
-        // 只有在等待玩家输入时才响应
         if (queue != null && queue.IsWaitingForInput())
         {
-            Debug.Log("Ticket Rejected");
             queue.RejectCurrentTicket();
         }
     }

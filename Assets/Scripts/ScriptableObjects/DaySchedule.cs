@@ -24,6 +24,10 @@ public class DaySchedule : ScriptableObject
         public string filmTitle;
         public string startTime;
         [Range(0, 200)] public int audienceCount = 0;
+        
+        [Header("票价设置")]
+        [Tooltip("本场次单张票的价格")]
+        [Range(1, 20)] public int ticketPrice = 1;
 
         [Header("特殊事件配置")]
         public List<SpecialEventConfig> specialEvents = new List<SpecialEventConfig>();

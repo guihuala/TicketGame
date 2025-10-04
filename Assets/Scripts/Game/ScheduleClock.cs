@@ -8,6 +8,9 @@ public class ScheduleClock : MonoBehaviour
     private string currentShowTime; // "HH:mm"
     public float simSeconds;
     private bool finishedBeforeShowtime = true;
+    
+    public string CurrentFilm => currentFilm;
+    public string CurrentShowTime => currentShowTime;
 
     public void SetTargetShow(string film, string show)
     {
@@ -16,7 +19,7 @@ public class ScheduleClock : MonoBehaviour
         finishedBeforeShowtime = true;
         MsgCenter.SendMsg(MsgConst.MSG_SCHEDULE_SET, film, show);
     }
-
+    
     void Update()
     {
         simSeconds += TimeManager.Instance.DeltaTime;

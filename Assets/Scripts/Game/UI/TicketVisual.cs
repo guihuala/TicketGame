@@ -102,13 +102,11 @@ public class TicketVisual : MonoBehaviour
                 break;
 
             case SpecialEventType.WrongNameSpelling:
-                // 错误命名：红色高亮电影名 + 闪烁效果
+                // 错误命名：红色高亮电影名
                 if (titleText) 
                 {
                     titleText.color = Color.red;
                     titleText.fontStyle = FontStyle.Bold;
-                    // 添加闪烁动画
-                    StartCoroutine(BlinkText(titleText));
                 }
                 if (warningIcon) 
                 {
@@ -160,9 +158,8 @@ public class TicketVisual : MonoBehaviour
                 break;
 
             case SpecialEventType.ElectronicAbuse:
-                // 电子票滥用：蓝色边框 + 屏幕像素效果
+                // 电子票滥用
                 if (ticketBg) ticketBg.color = new Color(0.9f, 1f, 1f, 1f);
-                // 可以添加像素化shader效果
                 break;
         }
 
@@ -171,7 +168,6 @@ public class TicketVisual : MonoBehaviour
         {
             stub.enabled = true;
             stub.color = Color.red;
-            // 添加"No Stub"文字
             if (specialText) specialText.text = "NO STUB - " + specialText.text;
         }
     }
@@ -206,16 +202,6 @@ public class TicketVisual : MonoBehaviour
             case SpecialEventType.CopyTicket: return Color.blue;
             case SpecialEventType.ElectronicAbuse: return Color.cyan;
             default: return Color.gray;
-        }
-    }
-
-    private IEnumerator BlinkText(Text text)
-    {
-        Color originalColor = text.color;
-        while (text != null)
-        {
-            text.color = text.color == originalColor ? new Color(1f, 0.5f, 0.5f, 1f) : originalColor;
-            yield return new WaitForSeconds(0.5f);
         }
     }
 

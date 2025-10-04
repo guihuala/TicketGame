@@ -40,8 +40,7 @@ public class TicketQueueController : MonoBehaviour
             TimeManager.Instance.SetTimeFactor(currentDay.timeScale);
         }
     }
-
-// 删除 StartShow 方法中的经济管理器设置代码
+    
     private void StartShow()
     {
         currentDay = generator.GetCurrentDay();
@@ -138,10 +137,8 @@ public class TicketQueueController : MonoBehaviour
     {
         if (!waitingForPlayerInput || currentTicketUI == null) return;
 
-        Debug.Log($"[TicketQueueController] 接受票: {currentTicket.filmTitle} {currentTicket.showTime} | 特殊={currentTicket.special}");
-        var result = validator.ValidateAccept(currentTicket, scheduleClock);
-        Debug.Log($"[TicketQueueController] 结果: {result.outcome}, 收入变化={result.incomeDelta}, 原因={result.reason}");
-        
+        // 传递当前关卡数据给验证器
+        var result = validator.ValidateAccept(currentTicket, scheduleClock, currentDay);
         // 触发撕票动画
         if (currentTicketUI != null)
         {
@@ -160,12 +157,14 @@ public class TicketQueueController : MonoBehaviour
         if (!waitingForPlayerInput || currentTicketUI == null) return;
 
         Debug.Log($"[TicketQueueController] 拒绝票: {currentTicket.filmTitle} {currentTicket.showTime} | 特殊={currentTicket.special}");
-        var result = validator.ValidateReject(currentTicket, scheduleClock);
+    
+        // 传递当前关卡数据给验证器
+        var result = validator.ValidateReject(currentTicket, scheduleClock, currentDay);
         Debug.Log($"[TicketQueueController] 结果: {result.outcome}, 收入变化={result.incomeDelta}, 原因={result.reason}");
 
         ProcessTicketResult(result);
     }
-
+    
     public bool IsWaitingForInput()
     {
         return waitingForPlayerInput;

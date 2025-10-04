@@ -110,6 +110,11 @@ public class DayScheduleEditor : Editor
         show.filmTitle = EditorGUILayout.TextField("电影名称", show.filmTitle);
         show.startTime = EditorGUILayout.TextField("开始时间", show.startTime);
         show.audienceCount = EditorGUILayout.IntSlider("观众数量", show.audienceCount, 0, 200);
+    
+        // 票价配置
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("票价设置", EditorStyles.miniLabel);
+        show.ticketPrice = EditorGUILayout.IntSlider("单张票价", show.ticketPrice, 1, 20);
 
         // 特殊事件
         EditorGUILayout.Space();
@@ -136,7 +141,7 @@ public class DayScheduleEditor : Editor
 
         EditorGUILayout.EndVertical();
     }
-
+    
     private void DrawSpecialEvent(int index, DaySchedule.SpecialEventConfig config, DaySchedule.Show show)
     {
         EditorGUILayout.BeginVertical("box");

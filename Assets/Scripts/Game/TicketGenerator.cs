@@ -75,6 +75,18 @@ public class TicketGenerator : MonoBehaviour
         return list;
     }
 
+    private TicketData CreateNormalTicket(DaySchedule.Show show)
+    {
+        return new TicketData
+        {
+            filmTitle = show.filmTitle,
+            showTime = show.startTime,
+            special = SpecialEventType.None,
+            hasStub = true,
+            isValid = true  // 正常票默认有效
+        };
+    }
+
     private TicketData CreateSpecialTicket(DaySchedule.SpecialEventConfig config, DaySchedule.Show show)
     {
         var ticket = new TicketData
@@ -82,7 +94,7 @@ public class TicketGenerator : MonoBehaviour
             filmTitle = string.IsNullOrEmpty(config.customFilmTitle) ? show.filmTitle : config.customFilmTitle,
             showTime = string.IsNullOrEmpty(config.customShowTime) ? show.startTime : config.customShowTime,
             special = config.type,
-            hasStub = true,
+            hasStub = config.type != SpecialEventType.MissingStub, // 缺失票根没有票根
             isValid = config.shouldAccept // 使用配置的是否应该接受
         };
 
@@ -91,34 +103,7 @@ public class TicketGenerator : MonoBehaviour
 
         return ticket;
     }
-
-    // 旧的兼容方法
-    private List<TicketData> CreateSpecialTickets(SpecialEventType type, int count, DaySchedule.Show show)
-    {
-        var list = new List<TicketData>();
-        for (int i = 0; i < count; i++)
-        {
-            var ticket = CreateSpecialTicket(type, show);
-            list.Add(ticket);
-        }
-        return list;
-    }
-
-    private TicketData CreateSpecialTicket(SpecialEventType type, DaySchedule.Show show)
-    {
-        var ticket = new TicketData
-        {
-            filmTitle = show.filmTitle,
-            showTime = show.startTime,
-            special = type,
-            hasStub = true,
-            isValid = GetDefaultValidity(type)
-        };
-
-        ApplySpecialTicketLogic(type, ref ticket, show);
-        return ticket;
-    }
-
+    
     private void ApplySpecialTicketLogic(SpecialEventType type, ref TicketData ticket, DaySchedule.Show show)
     {
         switch (type)
@@ -144,31 +129,7 @@ public class TicketGenerator : MonoBehaviour
                 break;
         }
     }
-
-    private bool GetDefaultValidity(SpecialEventType type)
-    {
-        switch (type)
-        {
-            case SpecialEventType.EarlyCheck:
-            case SpecialEventType.DamagedTicket:
-                return true; // 这些票本身是有效的，只是有特殊情况
-            default:
-                return false; // 其他特殊票默认无效
-        }
-    }
     
-    private TicketData CreateNormalTicket(DaySchedule.Show show)
-    {
-        return new TicketData
-        {
-            filmTitle = show.filmTitle,
-            showTime = show.startTime,
-            special = SpecialEventType.None,
-            hasStub = true,
-            isValid = true
-        };
-    }
-
     private string GeneratePastTimeForFilm(string filmTitle)
     {
         // 为不同电影生成不同的过去时间
