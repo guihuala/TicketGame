@@ -15,11 +15,11 @@ public class TicketUI : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))  // 左键接受
+        if (Input.GetMouseButtonDown(0))
         {
             OnAcceptTicket();
         }
-        else if (Input.GetMouseButtonDown(1))  // 右键拒绝
+        else if (Input.GetMouseButtonDown(1))
         {
             OnRejectTicket();
         }

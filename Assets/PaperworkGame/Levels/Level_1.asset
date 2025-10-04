@@ -17,18 +17,18 @@ MonoBehaviour:
     startTime: 10:00
     audienceCount: 3
     special_Early: 1
-    special_OldTicket: 0
-    special_Copy: 0
-    special_Drawn: 0
-    special_Electronic: 0
-    special_Damaged: 0
-  - filmTitle: La La Lamb
+    special_OldTicket: 1
+    special_Copy: 1
+    special_Drawn: 1
+    special_Electronic: 1
+    special_Damaged: 1
+  - filmTitle: Ne zha
     startTime: 15:00
     audienceCount: 3
     special_Early: 1
     special_OldTicket: 0
     special_Copy: 0
-    special_Drawn: 0
+    special_Drawn: 1
     special_Electronic: 0
     special_Damaged: 0
   star1Income: 20
