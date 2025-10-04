@@ -33,17 +33,20 @@ public class GameManager : Singleton<GameManager>
         {
             case GameState.Playing:
                 Time.timeScale = 1;
+                InputController.Instance.EnableInput(true);
                 UIManager.Instance.ClosePanel("PausePanel");
                 UIManager.Instance.ClosePanel("GameOverPanel");
                 break;
 
             case GameState.Paused:
                 Time.timeScale = 0;
+                InputController.Instance.EnableInput(false);
                 UIManager.Instance.OpenPanel("PausePanel");
                 break;
 
             case GameState.GameOver:
                 Time.timeScale = 0;
+                InputController.Instance.EnableInput(false);
                 UIManager.Instance.OpenPanel("GameOverPanel");
                 break;
         }

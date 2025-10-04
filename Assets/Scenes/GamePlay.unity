@@ -270,7 +270,7 @@ GameObject:
   - component: {fileID: 541639025}
   - component: {fileID: 541639024}
   - component: {fileID: 541639023}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Box
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -325,7 +325,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -437,7 +437,6 @@ Transform:
   m_Children:
   - {fileID: 677476665}
   - {fileID: 274364454}
-  - {fileID: 1618209206}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &641244028
@@ -630,6 +629,7 @@ GameObject:
   - component: {fileID: 677476665}
   - component: {fileID: 677476664}
   - component: {fileID: 677476668}
+  - component: {fileID: 677476669}
   m_Layer: 0
   m_Name: GameUtil
   m_TagString: Untagged
@@ -677,6 +677,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6aec472e7046a465caf8f2a211392c25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &677476669
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 677476663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9080e5695c7a04011830169a447f891c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ignoredUILayers:
+    serializedVersion: 2
+    m_Bits: 32
 --- !u!1 &755381922
 GameObject:
   m_ObjectHideFlags: 0
@@ -805,7 +820,7 @@ GameObject:
   - component: {fileID: 828219330}
   - component: {fileID: 828219329}
   - component: {fileID: 828219328}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Check
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -860,7 +875,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -896,7 +911,7 @@ GameObject:
   - component: {fileID: 848021698}
   - component: {fileID: 848021697}
   - component: {fileID: 848021696}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Sign
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -951,7 +966,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -986,7 +1001,7 @@ GameObject:
   - component: {fileID: 954566157}
   - component: {fileID: 954566159}
   - component: {fileID: 954566158}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: BG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1643,7 +1658,7 @@ GameObject:
   - component: {fileID: 1516508488}
   - component: {fileID: 1516508490}
   - component: {fileID: 1516508489}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Table
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1683,7 +1698,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1786,7 +1801,7 @@ GameObject:
   - component: {fileID: 1564820430}
   - component: {fileID: 1564820432}
   - component: {fileID: 1564820431}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Hand_R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1826,7 +1841,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2016,52 +2031,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1616672792}
   m_CullTransparentMesh: 1
---- !u!1 &1618209205
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1618209206}
-  - component: {fileID: 1618209208}
-  m_Layer: 0
-  m_Name: TicketUI
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1618209206
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1618209205}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 638484144}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1618209208
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1618209205}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82b918f6d076547b38d768ed573f2066, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  visual: {fileID: 0}
-  queue: {fileID: 274364455}
 --- !u!1 &1690097196
 GameObject:
   m_ObjectHideFlags: 0
@@ -2153,7 +2122,7 @@ GameObject:
   - component: {fileID: 1785940415}
   - component: {fileID: 1785940414}
   - component: {fileID: 1785940413}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Mat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2208,7 +2177,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2287,7 +2256,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1821042309}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Ticket
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2326,7 +2295,7 @@ GameObject:
   - component: {fileID: 2001342752}
   - component: {fileID: 2001342754}
   - component: {fileID: 2001342753}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: Hand_L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2366,7 +2335,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -2400,7 +2369,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2013631610}
   - component: {fileID: 2013631611}
-  m_Layer: 5
+  m_Layer: 2
   m_Name: HUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
