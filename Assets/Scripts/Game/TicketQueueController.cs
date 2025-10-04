@@ -6,18 +6,22 @@ public class TicketQueueController : MonoBehaviour
 {
     [SerializeField] private TicketGenerator generator;
     [SerializeField] private TicketValidator validator;
-    [SerializeField] private TicketUI ticketUIPrefab;  // 预制件引用
+    [SerializeField] private TicketUI ticketUIPrefab;
     [SerializeField] private EconomyManager economy;
     [SerializeField] private ScheduleClock scheduleClock;
-    [SerializeField] private Transform ticketSpawnPoint;  // 票生成位置
-    [SerializeField] private Transform ticketExitPoint;  // 票移动到的销毁位置
-    [SerializeField] private Transform parentForTickets; // 票实例化时的父物体
+    [SerializeField] private Transform ticketSpawnPoint;
+    [SerializeField] private Transform ticketDisplayPoint; // 票显示位置（玩家面前）
+    [SerializeField] private Transform ticketAcceptPoint; // 接受后的位置
+    [SerializeField] private Transform ticketRejectPoint; // 拒绝后的位置
+    [SerializeField] private Transform parentForTickets;
 
     private DaySchedule currentDay;
     private int showIndex;
     private Queue<TicketData> currentQueue;
     private TicketData currentTicket;
+    private TicketUI currentTicketUI;
     private bool showActive;
+    private bool waitingForPlayerInput = false;
 
     void Start()
     {
@@ -31,14 +35,12 @@ public class TicketQueueController : MonoBehaviour
         currentDay = generator.GetCurrentDay();
         if (currentDay == null)
         {
-            Debug.LogWarning("[TicketQueueController] No currentDay found, ending game");
             MsgCenter.SendMsgAct(MsgConst.MSG_GAME_OVER);
             return;
         }
 
         if (showIndex >= currentDay.shows.Count)
         {
-            Debug.Log("[TicketQueueController] All shows finished for today");
             MsgCenter.SendMsgAct(MsgConst.MSG_GAME_OVER);
             GameManager.Instance.EndGame();
             return;
@@ -51,12 +53,14 @@ public class TicketQueueController : MonoBehaviour
 
         Debug.Log($"[TicketQueueController] Starting show {showIndex}: {show.filmTitle} at {show.startTime}, Audience={show.audienceCount}");
         MsgCenter.SendMsg(MsgConst.MSG_SHOW_START, show.filmTitle, show.startTime);
-        NextTicket();
+        
+        // 延迟一会儿再生成第一张票
+        Invoke(nameof(NextTicket), 1f);
     }
 
     private void NextTicket()
     {
-        if (!showActive) return;
+        if (!showActive || waitingForPlayerInput) return;
 
         if (currentQueue.Count == 0)
         {
@@ -65,48 +69,95 @@ public class TicketQueueController : MonoBehaviour
             MsgCenter.SendMsg(MsgConst.MSG_SHOW_END, onTime);
             showIndex++;
             showActive = false;
-            StartShow();
+            
+            // 延迟一会儿再开始下一场
+            Invoke(nameof(StartShow), 2f);
             return;
         }
 
         currentTicket = currentQueue.Dequeue();
-        Debug.Log($"[TicketQueueController] Spawned ticket: {currentTicket.filmTitle} {currentTicket.showTime} | Special={currentTicket.special}");
 
-        // 实例化 TicketPanel 预制件并显示，指定生成的父物体
-        TicketUI ticketUI = Instantiate(ticketUIPrefab, ticketSpawnPoint.position, Quaternion.identity, parentForTickets);
-        
-        // 自动绑定 TicketQueueController 到 TicketUI
-        ticketUI.BindTicket(currentTicket);
-        ticketUI.queue = this;  // 自动绑定
+        // 实例化票UI
+        currentTicketUI = Instantiate(ticketUIPrefab, ticketSpawnPoint.position, Quaternion.identity, parentForTickets);
+        currentTicketUI.BindTicket(currentTicket);
+        currentTicketUI.queue = this;
 
-        // 使用 DoTween 动画从左边滑动到指定位置
-        ticketUI.transform.DOMoveX(ticketExitPoint.position.x, 1f).SetEase(Ease.InOutQuad).OnComplete(() =>
-        {
-            Debug.Log("Ticket moved to right side, now destroying it.");
-            Destroy(ticketUI.gameObject);  // 移动完成后销毁票面
-            NextTicket();  // 继续下一张票
-        });
+        // 动画：从左侧滑入到显示位置
+        currentTicketUI.transform.DOMove(ticketDisplayPoint.position, 0.5f)
+            .SetEase(Ease.OutBack)
+            .OnComplete(() =>
+            {
+                // 到达显示位置后，等待玩家输入
+                waitingForPlayerInput = true;
+            });
 
         MsgCenter.SendMsg(MsgConst.MSG_TICKET_SPAWNED, currentTicket);
     }
 
+    private void ProcessTicketResult(CheckResult result)
+    {
+        // 应用经济结果
+        economy.ApplyResult(result);
+        MsgCenter.SendMsg(MsgConst.MSG_TICKET_CHECKED, currentTicket, result);
+
+        // 根据结果移动票
+        Vector3 targetPosition = result.outcome == TicketOutcome.CorrectAccept || result.outcome == TicketOutcome.WrongAccept 
+            ? ticketAcceptPoint.position 
+            : ticketRejectPoint.position;
+
+        // 动画：移动到接受/拒绝位置并销毁
+        currentTicketUI.transform.DOMove(targetPosition, 0.5f)
+            .SetEase(Ease.InBack)
+            .OnComplete(() =>
+            {
+                // 销毁当前票
+                if (currentTicketUI != null)
+                {
+                    Destroy(currentTicketUI.gameObject);
+                    currentTicketUI = null;
+                }
+
+                // 重置状态，准备下一张票
+                waitingForPlayerInput = false;
+                
+                // 延迟一会儿再生成下一张票
+                Invoke(nameof(NextTicket), 0.5f);
+            });
+    }
+
     public void AcceptCurrentTicket()
     {
+        if (!waitingForPlayerInput || currentTicketUI == null) return;
+
         Debug.Log($"[TicketQueueController] Accepting ticket: {currentTicket.filmTitle} {currentTicket.showTime} | Special={currentTicket.special}");
         var result = validator.ValidateAccept(currentTicket, scheduleClock);
         Debug.Log($"[TicketQueueController] Result: {result.outcome}, Delta={result.incomeDelta}, Reason={result.reason}");
-        economy.ApplyResult(result);
-        MsgCenter.SendMsg(MsgConst.MSG_TICKET_CHECKED, currentTicket, result);
-        NextTicket();
+        
+        // 触发撕票动画
+        if (currentTicketUI != null)
+        {
+            var visual = currentTicketUI.GetComponent<TicketVisual>();
+            if (visual != null)
+            {
+                visual.OnTearSuccess();
+            }
+        }
+
+        ProcessTicketResult(result);
     }
 
     public void RejectCurrentTicket()
     {
-        Debug.Log($"[TicketQueueController] Rejecting ticket: {currentTicket.filmTitle} {currentTicket.showTime} | Special={currentTicket.special}");
+        if (!waitingForPlayerInput || currentTicketUI == null) return;
+
         var result = validator.ValidateReject(currentTicket, scheduleClock);
-        Debug.Log($"[TicketQueueController] Result: {result.outcome}, Delta={result.incomeDelta}, Reason={result.reason}");
-        economy.ApplyResult(result);
-        MsgCenter.SendMsg(MsgConst.MSG_TICKET_CHECKED, currentTicket, result);
-        NextTicket();
+
+        ProcessTicketResult(result);
+    }
+
+    // 获取当前是否在等待玩家输入
+    public bool IsWaitingForInput()
+    {
+        return waitingForPlayerInput;
     }
 }

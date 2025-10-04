@@ -5,18 +5,16 @@ public class TicketUI : MonoBehaviour
     [SerializeField] private TicketVisual visual;
 
     private TicketData current;
-    public TicketQueueController queue;  // 自动绑定
+    public TicketQueueController queue;
 
     private void OnEnable()
     {
-        // 注册输入事件
         InputController.Instance.onAcceptTicket += OnAcceptTicket;
         InputController.Instance.onRejectTicket += OnRejectTicket;
     }
 
     private void OnDisable()
     {
-        // 取消注册输入事件
         if (InputController.Instance != null)
         {
             InputController.Instance.onAcceptTicket -= OnAcceptTicket;
@@ -32,14 +30,21 @@ public class TicketUI : MonoBehaviour
 
     private void OnAcceptTicket()
     {
-        Debug.Log("Ticket Accepted");
-        visual.OnTearSuccess();
-        queue.AcceptCurrentTicket();  // 接受票
+        // 只有在等待玩家输入时才响应
+        if (queue != null && queue.IsWaitingForInput())
+        {
+            Debug.Log("Ticket Accepted");
+            queue.AcceptCurrentTicket();
+        }
     }
 
     private void OnRejectTicket()
     {
-        Debug.Log("Ticket Rejected");
-        queue.RejectCurrentTicket();  // 拒绝票
+        // 只有在等待玩家输入时才响应
+        if (queue != null && queue.IsWaitingForInput())
+        {
+            Debug.Log("Ticket Rejected");
+            queue.RejectCurrentTicket();
+        }
     }
 }

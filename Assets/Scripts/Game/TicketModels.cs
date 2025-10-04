@@ -8,7 +8,9 @@ public enum SpecialEventType
     CopyTicket,
     DrawnTicket,
     ElectronicAbuse,
-    DamagedTicket
+    DamagedTicket,
+    WrongNameSpelling,
+    MissingStub 
 }
 
 [Serializable]

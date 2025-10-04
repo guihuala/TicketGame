@@ -18,6 +18,8 @@ public class DaySchedule : ScriptableObject
         [Range(0, 10)] public int special_Drawn = 0;
         [Range(0, 10)] public int special_Electronic = 0;
         [Range(0, 10)] public int special_Damaged = 0;
+        [Range(0, 10)] public int special_WrongName = 0;
+        [Range(0, 10)] public int special_MissingStub = 0;
     }
 
     public List<Show> shows = new List<Show>();

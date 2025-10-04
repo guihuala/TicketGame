@@ -19,7 +19,6 @@ public class ScheduleClock : MonoBehaviour
 
     void Update()
     {
-        // 使用 TimeManager 的 DeltaTime，这样在暂停时不会增加时间
         simSeconds += TimeManager.Instance.DeltaTime;
     }
 
