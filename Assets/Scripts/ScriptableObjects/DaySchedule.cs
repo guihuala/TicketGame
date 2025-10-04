@@ -33,6 +33,10 @@ public class DaySchedule : ScriptableObject
         public List<SpecialEventConfig> specialEvents = new List<SpecialEventConfig>();
     }
     
+    [Header("关卡开始时间")]
+    [Tooltip("关卡开始的游戏时间 (HH:mm 格式，如 08:30、14:15)")]
+    public string levelStartTime = "08:00";
+    
     [Header("场次安排")]
     public List<Show> shows = new List<Show>();
 
@@ -60,4 +64,30 @@ public class DaySchedule : ScriptableObject
     public int star1Income = 20;
     public int star2Income = 50;
     public int star3Income = 90;
+    
+    /// <summary>
+    /// 验证开始时间格式是否正确
+    /// </summary>
+    public bool IsStartTimeValid()
+    {
+        return DateTime.TryParseExact(levelStartTime, "HH:mm", 
+            System.Globalization.CultureInfo.InvariantCulture, 
+            System.Globalization.DateTimeStyles.None, out _);
+    }
+    
+    /// <summary>
+    /// 获取开始时间的总秒数（从00:00开始计算）
+    /// </summary>
+    public float GetStartTimeInSeconds()
+    {
+        if (DateTime.TryParseExact(levelStartTime, "HH:mm", 
+            System.Globalization.CultureInfo.InvariantCulture, 
+            System.Globalization.DateTimeStyles.None, out DateTime time))
+        {
+            return (float)(time.TimeOfDay.TotalSeconds);
+        }
+        
+        // 默认返回8:00
+        return 8 * 3600f;
+    }
 }

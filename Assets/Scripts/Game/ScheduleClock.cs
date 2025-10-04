@@ -8,9 +8,25 @@ public class ScheduleClock : MonoBehaviour
     private string currentShowTime; // "HH:mm"
     public float simSeconds;
     private bool finishedBeforeShowtime = true;
-    
-    public string CurrentFilm => currentFilm;
-    public string CurrentShowTime => currentShowTime;
+    private float levelStartTimeSeconds = 0f;
+
+    public void SetLevelStartTime(string startTime)
+    {
+        if (DateTime.TryParseExact(startTime, "HH:mm", 
+            CultureInfo.InvariantCulture, 
+            DateTimeStyles.None, out DateTime time))
+        {
+            levelStartTimeSeconds = (float)(time.TimeOfDay.TotalSeconds);
+            simSeconds = levelStartTimeSeconds; // 设置初始时间
+            Debug.Log($"[ScheduleClock] 关卡开始时间设置为: {startTime} ({levelStartTimeSeconds}秒)");
+        }
+        else
+        {
+            Debug.LogWarning($"[ScheduleClock] 无效的开始时间格式: {startTime}，使用默认时间08:00");
+            levelStartTimeSeconds = 8 * 3600f; // 默认8:00
+            simSeconds = levelStartTimeSeconds;
+        }
+    }
 
     public void SetTargetShow(string film, string show)
     {
@@ -19,7 +35,7 @@ public class ScheduleClock : MonoBehaviour
         finishedBeforeShowtime = true;
         MsgCenter.SendMsg(MsgConst.MSG_SCHEDULE_SET, film, show);
     }
-    
+
     void Update()
     {
         simSeconds += TimeManager.Instance.DeltaTime;
@@ -43,4 +59,12 @@ public class ScheduleClock : MonoBehaviour
         var midnight = DateTime.Today;
         return midnight.AddSeconds(s);
     }
+    
+    public string GetCurrentGameTime()
+    {
+        return SecondsToTime(simSeconds).ToString("HH:mm");
+    }
+    
+    public string CurrentFilm => currentFilm;
+    public string CurrentShowTime => currentShowTime;
 }

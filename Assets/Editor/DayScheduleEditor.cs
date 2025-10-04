@@ -50,28 +50,60 @@ public class DayScheduleEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 
-    private void DrawTimeSettings()
+private void DrawTimeSettings()
+{
+    // 关卡开始时间
+    EditorGUILayout.LabelField("关卡开始时间", EditorStyles.miniLabel);
+    
+    EditorGUILayout.BeginHorizontal();
     {
-        EditorGUILayout.LabelField("时间流速", EditorStyles.miniLabel);
-        schedule.timeScale = EditorGUILayout.Slider("时间比例", schedule.timeScale, 0.1f, 5f);
-
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("时间间隔", EditorStyles.miniLabel);
-        schedule.timeBetweenShows = EditorGUILayout.FloatField("场次间隔(秒)", schedule.timeBetweenShows);
-        schedule.timeBetweenTickets = EditorGUILayout.FloatField("票间隔(秒)", schedule.timeBetweenTickets);
-
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("动画时间", EditorStyles.miniLabel);
-        schedule.ticketSlideInDuration = EditorGUILayout.FloatField("滑入动画(秒)", schedule.ticketSlideInDuration);
-        schedule.ticketSlideOutDuration = EditorGUILayout.FloatField("滑出动画(秒)", schedule.ticketSlideOutDuration);
-        schedule.initialTicketDelay = EditorGUILayout.FloatField("初始延迟(秒)", schedule.initialTicketDelay);
-
-        EditorGUILayout.Space();
-        EditorGUILayout.LabelField("评分标准", EditorStyles.miniLabel);
-        schedule.star1Income = EditorGUILayout.IntField("1星收入", schedule.star1Income);
-        schedule.star2Income = EditorGUILayout.IntField("2星收入", schedule.star2Income);
-        schedule.star3Income = EditorGUILayout.IntField("3星收入", schedule.star3Income);
+        schedule.levelStartTime = EditorGUILayout.TextField("开始时间(HH:mm)", schedule.levelStartTime);
+        
+        // 验证时间格式
+        if (!schedule.IsStartTimeValid())
+        {
+            EditorGUILayout.LabelField("格式错误", GUILayout.Width(80));
+        }
+        else
+        {
+            EditorGUILayout.LabelField("格式正确", GUILayout.Width(80));
+        }
     }
+    EditorGUILayout.EndHorizontal();
+    
+    // 提供快速选择常用时间的按钮
+    EditorGUILayout.BeginHorizontal();
+    {
+        if (GUILayout.Button("08:00", GUILayout.Width(60))) schedule.levelStartTime = "08:00";
+        if (GUILayout.Button("09:30", GUILayout.Width(60))) schedule.levelStartTime = "09:30";
+        if (GUILayout.Button("11:00", GUILayout.Width(60))) schedule.levelStartTime = "11:00";
+        if (GUILayout.Button("13:15", GUILayout.Width(60))) schedule.levelStartTime = "13:15";
+        if (GUILayout.Button("14:45", GUILayout.Width(60))) schedule.levelStartTime = "14:45";
+        GUILayout.FlexibleSpace();
+    }
+    EditorGUILayout.EndHorizontal();
+
+    EditorGUILayout.Space();
+    EditorGUILayout.LabelField("时间流速", EditorStyles.miniLabel);
+    schedule.timeScale = EditorGUILayout.Slider("时间比例", schedule.timeScale, 0.1f, 5f);
+
+    EditorGUILayout.Space();
+    EditorGUILayout.LabelField("时间间隔", EditorStyles.miniLabel);
+    schedule.timeBetweenShows = EditorGUILayout.FloatField("场次间隔(秒)", schedule.timeBetweenShows);
+    schedule.timeBetweenTickets = EditorGUILayout.FloatField("票间隔(秒)", schedule.timeBetweenTickets);
+
+    EditorGUILayout.Space();
+    EditorGUILayout.LabelField("动画时间", EditorStyles.miniLabel);
+    schedule.ticketSlideInDuration = EditorGUILayout.FloatField("滑入动画(秒)", schedule.ticketSlideInDuration);
+    schedule.ticketSlideOutDuration = EditorGUILayout.FloatField("滑出动画(秒)", schedule.ticketSlideOutDuration);
+    schedule.initialTicketDelay = EditorGUILayout.FloatField("初始延迟(秒)", schedule.initialTicketDelay);
+
+    EditorGUILayout.Space();
+    EditorGUILayout.LabelField("评分标准", EditorStyles.miniLabel);
+    schedule.star1Income = EditorGUILayout.IntField("1星收入", schedule.star1Income);
+    schedule.star2Income = EditorGUILayout.IntField("2星收入", schedule.star2Income);
+    schedule.star3Income = EditorGUILayout.IntField("3星收入", schedule.star3Income);
+}
 
     private void DrawShowsConfiguration()
     {
@@ -302,10 +334,17 @@ public class DayScheduleEditor : Editor
         int totalSpecialEvents = schedule.shows.Sum(show => show.specialEvents.Sum(e => e.count));
 
         string message = $"配置验证结果：\n" +
-                        $"总场次：{schedule.shows.Count}\n" +
-                        $"总观众：{totalAudience}\n" +
-                        $"总特殊事件：{totalSpecialEvents}\n" +
-                        $"时间比例：{schedule.timeScale}x";
+                         $"总场次：{schedule.shows.Count}\n" +
+                         $"总观众：{totalAudience}\n" +
+                         $"总特殊事件：{totalSpecialEvents}\n" +
+                         $"时间比例：{schedule.timeScale}x\n" +
+                         $"开始时间：{schedule.levelStartTime}";
+
+        // 检查开始时间格式
+        if (!schedule.IsStartTimeValid())
+        {
+            message += $"\n开始时间格式错误，请使用 HH:mm 格式";
+        }
 
         // 检查配置问题
         foreach (var show in schedule.shows)
@@ -313,7 +352,7 @@ public class DayScheduleEditor : Editor
             int showSpecialEvents = show.specialEvents.Sum(e => e.count);
             if (showSpecialEvents > show.audienceCount)
             {
-                message += $"\n⚠️ 场次 '{show.filmTitle}' 特殊事件数量({showSpecialEvents})超过观众数({show.audienceCount})";
+                message += $"\n场次 '{show.filmTitle}' 特殊事件数量({showSpecialEvents})超过观众数({show.audienceCount})";
             }
         }
 

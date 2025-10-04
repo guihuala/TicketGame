@@ -57,6 +57,12 @@ public class TicketQueueController : MonoBehaviour
             return;
         }
 
+        // 设置关卡开始时间（只在第一场开始时设置）
+        if (showIndex == 0)
+        {
+            scheduleClock.SetLevelStartTime(currentDay.levelStartTime);
+        }
+
         var show = currentDay.shows[showIndex];
         currentQueue = generator.BuildQueueForShow(show);
         scheduleClock.SetTargetShow(show.filmTitle, show.startTime);
@@ -64,7 +70,7 @@ public class TicketQueueController : MonoBehaviour
 
         Debug.Log($"[TicketQueueController] 开始场次 {showIndex + 1}: {show.filmTitle} at {show.startTime}, 观众={show.audienceCount}");
         MsgCenter.SendMsg(MsgConst.MSG_SHOW_START, show.filmTitle, show.startTime);
-    
+
         // 使用关卡配置的初始延迟
         Invoke(nameof(NextTicket), currentDay.initialTicketDelay);
     }
