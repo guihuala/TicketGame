@@ -10,9 +10,9 @@ public class TicketQueueController : MonoBehaviour
     [SerializeField] private EconomyManager economy;
     [SerializeField] private ScheduleClock scheduleClock;
     [SerializeField] private Transform ticketSpawnPoint;
-    [SerializeField] private Transform ticketDisplayPoint; // 票显示位置（玩家面前）
-    [SerializeField] private Transform ticketAcceptPoint; // 接受后的位置
-    [SerializeField] private Transform ticketRejectPoint; // 拒绝后的位置
+    [SerializeField] private Transform ticketDisplayPoint;
+    [SerializeField] private Transform ticketAcceptPoint;
+    [SerializeField] private Transform ticketRejectPoint;
     [SerializeField] private Transform parentForTickets;
 
     private DaySchedule currentDay;
@@ -27,7 +27,18 @@ public class TicketQueueController : MonoBehaviour
     {
         currentDay = generator.GetCurrentDay();
         showIndex = 0;
+        
+        ApplyLevelTimeSettings();
         StartShow();
+    }
+
+    private void ApplyLevelTimeSettings()
+    {
+        if (currentDay != null)
+        {
+            // 应用时间比例
+            TimeManager.Instance.SetTimeFactor(currentDay.timeScale);
+        }
     }
 
     private void StartShow()
@@ -51,11 +62,11 @@ public class TicketQueueController : MonoBehaviour
         scheduleClock.SetTargetShow(show.filmTitle, show.startTime);
         showActive = true;
 
-        Debug.Log($"[TicketQueueController] Starting show {showIndex}: {show.filmTitle} at {show.startTime}, Audience={show.audienceCount}");
+        Debug.Log($"[TicketQueueController] 开始场次 {showIndex + 1}: {show.filmTitle} at {show.startTime}, 观众={show.audienceCount}");
         MsgCenter.SendMsg(MsgConst.MSG_SHOW_START, show.filmTitle, show.startTime);
         
-        // 延迟一会儿再生成第一张票
-        Invoke(nameof(NextTicket), 1f);
+        // 使用关卡配置的初始延迟
+        Invoke(nameof(NextTicket), currentDay.initialTicketDelay);
     }
 
     private void NextTicket()
@@ -65,13 +76,13 @@ public class TicketQueueController : MonoBehaviour
         if (currentQueue.Count == 0)
         {
             bool onTime = scheduleClock.AllProcessedBeforeShowtime();
-            Debug.Log($"[TicketQueueController] Show {showIndex} finished. On time: {onTime}");
+            Debug.Log($"[TicketQueueController] 场次 {showIndex + 1} 结束. 按时完成: {onTime}");
             MsgCenter.SendMsg(MsgConst.MSG_SHOW_END, onTime);
             showIndex++;
             showActive = false;
             
-            // 延迟一会儿再开始下一场
-            Invoke(nameof(StartShow), 2f);
+            // 使用关卡配置的场次间隔时间
+            Invoke(nameof(StartShow), currentDay.timeBetweenShows);
             return;
         }
 
@@ -82,12 +93,11 @@ public class TicketQueueController : MonoBehaviour
         currentTicketUI.BindTicket(currentTicket);
         currentTicketUI.queue = this;
 
-        // 动画：从左侧滑入到显示位置
-        currentTicketUI.transform.DOMove(ticketDisplayPoint.position, 0.5f)
+        // 使用关卡配置的滑入动画持续时间
+        currentTicketUI.transform.DOMove(ticketDisplayPoint.position, currentDay.ticketSlideInDuration)
             .SetEase(Ease.OutBack)
             .OnComplete(() =>
             {
-                // 到达显示位置后，等待玩家输入
                 waitingForPlayerInput = true;
             });
 
@@ -105,23 +115,21 @@ public class TicketQueueController : MonoBehaviour
             ? ticketAcceptPoint.position 
             : ticketRejectPoint.position;
 
-        // 动画：移动到接受/拒绝位置并销毁
-        currentTicketUI.transform.DOMove(targetPosition, 0.5f)
+        // 使用关卡配置的滑出动画持续时间
+        currentTicketUI.transform.DOMove(targetPosition, currentDay.ticketSlideOutDuration)
             .SetEase(Ease.InBack)
             .OnComplete(() =>
             {
-                // 销毁当前票
                 if (currentTicketUI != null)
                 {
                     Destroy(currentTicketUI.gameObject);
                     currentTicketUI = null;
                 }
 
-                // 重置状态，准备下一张票
                 waitingForPlayerInput = false;
                 
-                // 延迟一会儿再生成下一张票
-                Invoke(nameof(NextTicket), 0.5f);
+                // 使用关卡配置的票间隔时间
+                Invoke(nameof(NextTicket), currentDay.timeBetweenTickets);
             });
     }
 
@@ -129,9 +137,9 @@ public class TicketQueueController : MonoBehaviour
     {
         if (!waitingForPlayerInput || currentTicketUI == null) return;
 
-        Debug.Log($"[TicketQueueController] Accepting ticket: {currentTicket.filmTitle} {currentTicket.showTime} | Special={currentTicket.special}");
+        Debug.Log($"[TicketQueueController] 接受票: {currentTicket.filmTitle} {currentTicket.showTime} | 特殊={currentTicket.special}");
         var result = validator.ValidateAccept(currentTicket, scheduleClock);
-        Debug.Log($"[TicketQueueController] Result: {result.outcome}, Delta={result.incomeDelta}, Reason={result.reason}");
+        Debug.Log($"[TicketQueueController] 结果: {result.outcome}, 收入变化={result.incomeDelta}, 原因={result.reason}");
         
         // 触发撕票动画
         if (currentTicketUI != null)
@@ -150,12 +158,13 @@ public class TicketQueueController : MonoBehaviour
     {
         if (!waitingForPlayerInput || currentTicketUI == null) return;
 
+        Debug.Log($"[TicketQueueController] 拒绝票: {currentTicket.filmTitle} {currentTicket.showTime} | 特殊={currentTicket.special}");
         var result = validator.ValidateReject(currentTicket, scheduleClock);
+        Debug.Log($"[TicketQueueController] 结果: {result.outcome}, 收入变化={result.incomeDelta}, 原因={result.reason}");
 
         ProcessTicketResult(result);
     }
 
-    // 获取当前是否在等待玩家输入
     public bool IsWaitingForInput()
     {
         return waitingForPlayerInput;
