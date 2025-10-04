@@ -10,12 +10,7 @@ public class GameManager : Singleton<GameManager>
     }
 
     private GameState currentState;
-
-    // 游戏开始时初始化状态
-    void Start()
-    {
-    }
-
+    
     public void SetGameState(GameState newState)
     {
         currentState = newState;

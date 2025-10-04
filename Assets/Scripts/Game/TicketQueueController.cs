@@ -1,13 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class TicketQueueController : MonoBehaviour
 {
     [SerializeField] private TicketGenerator generator;
     [SerializeField] private TicketValidator validator;
-    [SerializeField] private TicketUI ticketUI;
+    [SerializeField] private TicketUI ticketUIPrefab;  // 预制件引用
     [SerializeField] private EconomyManager economy;
     [SerializeField] private ScheduleClock scheduleClock;
+    [SerializeField] private Transform ticketSpawnPoint;  // 票生成位置
+    [SerializeField] private Transform ticketExitPoint;  // 票移动到的销毁位置
+    [SerializeField] private Transform parentForTickets; // 票实例化时的父物体
 
     private DaySchedule currentDay;
     private int showIndex;
@@ -67,7 +71,22 @@ public class TicketQueueController : MonoBehaviour
 
         currentTicket = currentQueue.Dequeue();
         Debug.Log($"[TicketQueueController] Spawned ticket: {currentTicket.filmTitle} {currentTicket.showTime} | Special={currentTicket.special}");
+
+        // 实例化 TicketPanel 预制件并显示，指定生成的父物体
+        TicketUI ticketUI = Instantiate(ticketUIPrefab, ticketSpawnPoint.position, Quaternion.identity, parentForTickets);
+        
+        // 自动绑定 TicketQueueController 到 TicketUI
         ticketUI.BindTicket(currentTicket);
+        ticketUI.queue = this;  // 自动绑定
+
+        // 使用 DoTween 动画从左边滑动到指定位置
+        ticketUI.transform.DOMoveX(ticketExitPoint.position.x, 1f).SetEase(Ease.InOutQuad).OnComplete(() =>
+        {
+            Debug.Log("Ticket moved to right side, now destroying it.");
+            Destroy(ticketUI.gameObject);  // 移动完成后销毁票面
+            NextTicket();  // 继续下一张票
+        });
+
         MsgCenter.SendMsg(MsgConst.MSG_TICKET_SPAWNED, currentTicket);
     }
 

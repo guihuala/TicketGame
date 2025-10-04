@@ -49,7 +49,7 @@ public class TicketVisual : MonoBehaviour
         }
     }
 
-    // 撕票成功时，添加视觉效果
+    // 撕票成功时，添加视觉效果（保持动画）
     public void OnTearSuccess()
     {
         if (stub != null)
@@ -58,14 +58,14 @@ public class TicketVisual : MonoBehaviour
             StartCoroutine(DropTicketStub());
         }
     }
-    
+
     private System.Collections.IEnumerator DropTicketStub()
     {
         // 目标位置（票根掉落的目标位置）
         Vector3 targetPos = new Vector3(defaultStubPos.x, defaultStubPos.y - 100f, defaultStubPos.z);
-        
+
         float duration = 1f;  // 动画持续时间
-        stub.transform.DOLocalMove(targetPos, duration).SetEase(Ease.InOutQuad);
+        stub.transform.DOLocalMove(targetPos, duration).SetEase(Ease.InOutQuad).SetUpdate(true);
 
         yield return new WaitForSeconds(duration);
     }

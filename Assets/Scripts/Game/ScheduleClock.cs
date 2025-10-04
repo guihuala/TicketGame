@@ -6,7 +6,7 @@ public class ScheduleClock : MonoBehaviour
 {
     private string currentFilm;
     private string currentShowTime; // "HH:mm"
-    private float simSeconds;
+    public float simSeconds;
     private bool finishedBeforeShowtime = true;
 
     public void SetTargetShow(string film, string show)
