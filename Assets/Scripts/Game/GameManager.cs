@@ -11,11 +11,13 @@ public class GameManager : Singleton<GameManager>
 
     private GameState currentState;
     private TicketGenerator ticketGenerator;
+    private EconomyManager economyManager;
     private int selectedLevelIndex;
 
     void Start()
     {
         ticketGenerator = FindObjectOfType<TicketGenerator>();
+        economyManager = FindObjectOfType<EconomyManager>();
         selectedLevelIndex = PlayerPrefs.GetInt("SelectedLevelIndex", 0);
 
         // 初始化时间管理器
@@ -64,17 +66,25 @@ public class GameManager : Singleton<GameManager>
         DaySchedule currentLevel = ticketGenerator.GetCurrentDay();
         if (currentLevel != null)
         {
-            Debug.Log("Starting level: " + currentLevel.name);
-            // 重置时间
-            var scheduleClock = FindObjectOfType<ScheduleClock>();
-            if (scheduleClock != null)
+            Debug.Log($"开始关卡: {currentLevel.name}");
+            
+            // 统一在这里初始化经济管理器
+            if (economyManager != null)
             {
-                // todo.根据关卡设置初始时间
+                economyManager.SetCurrentLevel(currentLevel);
+                economyManager.ResetIncome();
             }
+            else
+            {
+                Debug.LogWarning("[GameManager] 找不到 EconomyManager");
+            }
+            
+            // 设置时间比例
+            TimeManager.Instance.SetTimeFactor(currentLevel.timeScale);
         }
         else
         {
-            Debug.LogError("Failed to load level.");
+            Debug.LogError("加载关卡失败。");
         }
     }
 

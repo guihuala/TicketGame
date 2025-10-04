@@ -41,6 +41,7 @@ public class TicketQueueController : MonoBehaviour
         }
     }
 
+// 删除 StartShow 方法中的经济管理器设置代码
     private void StartShow()
     {
         currentDay = generator.GetCurrentDay();
@@ -64,11 +65,11 @@ public class TicketQueueController : MonoBehaviour
 
         Debug.Log($"[TicketQueueController] 开始场次 {showIndex + 1}: {show.filmTitle} at {show.startTime}, 观众={show.audienceCount}");
         MsgCenter.SendMsg(MsgConst.MSG_SHOW_START, show.filmTitle, show.startTime);
-        
+    
         // 使用关卡配置的初始延迟
         Invoke(nameof(NextTicket), currentDay.initialTicketDelay);
     }
-
+    
     private void NextTicket()
     {
         if (!showActive || waitingForPlayerInput) return;
