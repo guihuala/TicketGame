@@ -11,4 +11,5 @@ public class MsgConst
     public const int MSG_TICKET_SPAWNED = 13;    // (TicketData)
     public const int MSG_INCOME_CHANGED = 14;    // (int income, CheckResult result)
     
+    public const int MSG_BROADCAST_DELAY = 21; 
 }

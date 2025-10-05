@@ -19,3 +19,5 @@ MonoBehaviour:
     uiPath: Panel/PausePanel
   - uiName: SettingPanel
     uiPath: Panel/SettingPanel
+  - uiName: ShopPanel
+    uiPath: Panel/ShopPanel

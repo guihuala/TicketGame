@@ -136,18 +136,19 @@ public class GameManager : Singleton<GameManager>
 
     #endregion
     
-    // 在游戏结束时计算并保存星星
     public void CalculateAndSaveStars()
     {
         if (economyManager == null) return;
-        
+    
         int totalIncome = economyManager.currentIncome;
         int starsEarned = CalculateStars(totalIncome);
-        
+    
         // 保存进度
         LevelProgressManager.CompleteLevel(selectedLevelIndex, starsEarned);
         
-        Debug.Log($"关卡 {selectedLevelIndex} 完成! 收入: {totalIncome}, 获得星星: {starsEarned}");
+        CurrencyManager.AddCoins(totalIncome);
+    
+        Debug.Log($"关卡 {selectedLevelIndex} 完成! 收入: {totalIncome}, 获得星星: {starsEarned}, 金币奖励: {totalIncome}");
     }
     
     private int CalculateStars(int totalIncome)

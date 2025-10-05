@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f5304b7863354c9482f3f6928886400, type: 3}
+  m_Name: Broadcast System
+  m_EditorClassIdentifier: 
+  itemId: 3
+  itemName: Broadcast System
+  description: Triggers an announcement that delays the next movie by 15 minutes.
+  price: 150
+  icon: {fileID: 0}
+  type: 0
+  uses: 1

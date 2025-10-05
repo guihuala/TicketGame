@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LevelSelector : MonoBehaviour
+public class LevelSelectUI : MonoBehaviour
 {
     [System.Serializable]
     public class LevelButtonData
@@ -15,18 +15,16 @@ public class LevelSelector : MonoBehaviour
 
     [SerializeField] private LevelButtonData[] levelButtons;
     [SerializeField] private Button backButton; // 返回按钮
+    [SerializeField] private Button shopButton;
 
     void Start()
     {
         // 设置返回按钮的点击事件
         if (backButton != null)
-        {
             backButton.onClick.AddListener(OnBackButtonClicked);
-        }
-        else
-        {
-            Debug.LogWarning("Back button is not assigned in LevelSelector");
-        }
+        if(shopButton != null)
+            shopButton.onClick.AddListener(OnShopButtonClicked);
+        
 
         UpdateLevelButtons();
         
@@ -87,5 +85,10 @@ public class LevelSelector : MonoBehaviour
     private void OnBackButtonClicked()
     {
         SceneLoader.Instance.LoadScene(GameScene.MainMenu);
+    }
+
+    private void OnShopButtonClicked()
+    {
+        UIManager.Instance.OpenPanel("ShopPanel");
     }
 }
