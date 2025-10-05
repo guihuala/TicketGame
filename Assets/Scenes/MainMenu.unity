@@ -524,7 +524,6 @@ RectTransform:
   m_Children:
   - {fileID: 1803857593}
   - {fileID: 1166320866}
-  - {fileID: 824251330}
   m_Father: {fileID: 807835699}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -547,6 +546,10 @@ MonoBehaviour:
   startButton: {fileID: 839880491}
   settingsButton: {fileID: 1169643360}
   exitButton: {fileID: 889894938}
+  targetTransform: {fileID: 1803857593}
+  startPosition: {x: -1920, y: 540}
+  moveDuration: 1
+  moveEase: 8
 --- !u!114 &739666819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -712,12 +715,12 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 824251329}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 739666817}
+  m_Father: {fileID: 1803857593}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1355,6 +1358,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1399114518}
+  - {fileID: 824251330}
   m_Father: {fileID: 739666817}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}

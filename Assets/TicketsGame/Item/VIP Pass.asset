@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f5304b7863354c9482f3f6928886400, type: 3}
   m_Name: VIP Pass
   m_EditorClassIdentifier: 
-  itemId: 2
+  itemId: vip_pass
   itemName: VIP Pass
   description: Automatically approves one guest without manual checking.
   price: 100

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -12,38 +13,51 @@ public class PowerUpManager : Singleton<PowerUpManager>
     public const string VIP_PASS_ID = "vip_pass";
     public const string BROADCAST_SYSTEM_ID = "broadcast_system";
     
+    // 所有道具ID的数组，用于遍历
+    private string[] allPowerUpIds = { UV_LIGHT_ID, VIP_PASS_ID, BROADCAST_SYSTEM_ID };
+
     protected override void Awake()
     {
         base.Awake();
         ticketQueue = FindObjectOfType<TicketQueueController>();
         scheduleClock = FindObjectOfType<ScheduleClock>();
         
-        // 游戏开始时从注册表加载道具数据
         LoadPowerUpsFromPlayerPrefs();
     }
     
-    // 从PlayerPrefs加载所有道具
+
     private void LoadPowerUpsFromPlayerPrefs()
     {
         activePowerUps.Clear();
         
         // 加载所有道具的使用次数
-        string[] allPowerUpIds = { UV_LIGHT_ID, VIP_PASS_ID, BROADCAST_SYSTEM_ID };
-        
         foreach (string itemId in allPowerUpIds)
         {
             int uses = ShopManager.GetItemUses(itemId);
-            if (uses > 0)
-            {
-                activePowerUps[itemId] = uses;
-                Debug.Log($"[PowerUpManager] 从注册表加载道具: {itemId} x{uses}");
-            }
+            // 即使使用次数为0，也添加到字典中，避免KeyNotFoundException
+            activePowerUps[itemId] = uses;
+            Debug.Log($"[PowerUpManager] 从注册表加载道具: {itemId} x{uses}");
         }
         
-        Debug.Log($"[PowerUpManager] 道具加载完成，总计 {activePowerUps.Count} 种道具");
+        // 延迟一帧再更新UI，确保所有组件都已初始化
+        StartCoroutine(DelayedUpdateUI());
     }
     
-    // 使用道具
+    private System.Collections.IEnumerator DelayedUpdateUI()
+    {
+        yield return null; // 等待一帧
+        
+        PowerUpUI ui = FindObjectOfType<PowerUpUI>();
+        if (ui != null)
+        {
+            ui.UpdatePowerUpUI();
+        }
+        else
+        {
+            Debug.LogWarning("[PowerUpManager] 找不到 PowerUpUI 组件");
+        }
+    }
+    
     public bool UsePowerUp(string itemId)
     {
         if (!activePowerUps.ContainsKey(itemId) || activePowerUps[itemId] <= 0)
@@ -62,13 +76,10 @@ public class PowerUpManager : Singleton<PowerUpManager>
             // 更新注册表中的数量
             ShopManager.ConsumeItemUse(itemId);
             
-            // 如果数量为0，从字典中移除
-            if (activePowerUps[itemId] <= 0)
-            {
-                activePowerUps.Remove(itemId);
-            }
-            
             Debug.Log($"[PowerUpManager] 使用道具成功: {itemId}, 剩余: {GetPowerUpCount(itemId)}");
+            
+            // 立即更新UI
+            UpdatePowerUpUI();
         }
         
         return success;
@@ -141,7 +152,16 @@ public class PowerUpManager : Singleton<PowerUpManager>
     // 获取道具数量
     public int GetPowerUpCount(string itemId)
     {
-        return activePowerUps.ContainsKey(itemId) ? activePowerUps[itemId] : 0;
+        if (activePowerUps.ContainsKey(itemId))
+        {
+            return activePowerUps[itemId];
+        }
+        else
+        {
+            // 如果字典中没有这个key，说明该道具数量为0
+            Debug.LogWarning($"[PowerUpManager] 道具 {itemId} 不在字典中，返回0");
+            return 0;
+        }
     }
     
     // 检查道具是否可用
@@ -149,21 +169,19 @@ public class PowerUpManager : Singleton<PowerUpManager>
     {
         return GetPowerUpCount(itemId) > 0;
     }
-
-    // 获取道具名称
-    public string GetPowerUpName(string itemId)
-    {
-        switch (itemId)
-        {
-            case UV_LIGHT_ID: return "紫外线灯";
-            case VIP_PASS_ID: return "VIP票";
-            case BROADCAST_SYSTEM_ID: return "广播系统";
-            default: return "未知道具";
-        }
-    }
     
     public void RefreshPowerUpData()
     {
         LoadPowerUpsFromPlayerPrefs();
+    }
+    
+    // 手动更新UI的方法
+    public void UpdatePowerUpUI()
+    {
+        PowerUpUI ui = FindObjectOfType<PowerUpUI>();
+        if (ui != null)
+        {
+            ui.UpdatePowerUpUI();
+        }
     }
 }

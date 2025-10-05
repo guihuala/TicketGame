@@ -27,7 +27,6 @@ public class TicketUI : MonoBehaviour
     public void BindTicket(TicketData data)
     {
         current = data;
-        Debug.Log($"Ticket type is {data.special},Ticket is{data.isValid}");
         if (visual != null) visual.SetTicket(current);
     }
 

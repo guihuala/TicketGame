@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class PowerUpUI : MonoBehaviour
 {
@@ -10,45 +11,30 @@ public class PowerUpUI : MonoBehaviour
         public Button button;
         public Text countText;
         public Text nameText;
-        public GameObject slotContainer; // 整个槽位的容器，用于隐藏/显示
+        public GameObject slotContainer;
     }
     
     [SerializeField] private PowerUpSlot[] powerUpSlots;
     
-    private void Start()
+    private void Awake()
     {
-        InitializePowerUpUI();
-        
         foreach (var slot in powerUpSlots)
         {
-            slot.button.onClick.AddListener(() => OnPowerUpClicked(slot.itemId));
-        }
-    }
-    
-    private void InitializePowerUpUI()
-    {
-        if (PowerUpManager.Instance == null) return;
-        
-        foreach (var slot in powerUpSlots)
-        {
-            // 设置名称
-            if (slot.nameText != null)
+            if (slot.button != null)
             {
-                slot.nameText.text = PowerUpManager.Instance.GetPowerUpName(slot.itemId);
+                slot.button.onClick.AddListener(() => OnPowerUpClicked(slot.itemId));
             }
         }
-        
-        UpdatePowerUpUI();
     }
     
-    private void UpdatePowerUpUI()
+    public void UpdatePowerUpUI()
     {
-        if (PowerUpManager.Instance == null) return;
-        
         foreach (var slot in powerUpSlots)
         {
             int count = PowerUpManager.Instance.GetPowerUpCount(slot.itemId);
             bool hasPowerUp = count > 0;
+            
+            Debug.Log($"[PowerUpUI] 更新道具 {slot.itemId}: 数量={count}, 是否有道具={hasPowerUp}");
             
             // 更新数量显示
             if (slot.countText != null)
@@ -61,20 +47,22 @@ public class PowerUpUI : MonoBehaviour
             if (slot.button != null)
             {
                 slot.button.interactable = hasPowerUp;
+                
+                // 如果没有单独的容器，直接控制按钮的显示
+                if (slot.slotContainer == null)
+                {
+                    slot.button.gameObject.SetActive(hasPowerUp);
+                }
             }
             
             // 更新整个槽位的显示状态
             if (slot.slotContainer != null)
             {
-                // 如果有单独的容器，隐藏整个容器
                 slot.slotContainer.SetActive(hasPowerUp);
             }
             else
             {
-                // 如果没有单独的容器，隐藏按钮
-                slot.button.gameObject.SetActive(hasPowerUp);
-                
-                // 同时隐藏图标和文本
+                // 如果没有单独的容器，隐藏相关文本
                 if (slot.nameText != null)
                     slot.nameText.gameObject.SetActive(hasPowerUp);
                 if (slot.countText != null)
@@ -87,12 +75,21 @@ public class PowerUpUI : MonoBehaviour
             {
                 canvasGroup.alpha = hasPowerUp ? 1f : 0.3f;
             }
+            else if (slot.button != null)
+            {
+                // 如果没有 CanvasGroup，直接设置颜色
+                var colors = slot.button.colors;
+                colors.normalColor = hasPowerUp ? Color.white : new Color(1, 1, 1, 0.3f);
+                slot.button.colors = colors;
+            }
         }
     }
     
     private void OnPowerUpClicked(string itemId)
     {
         if (PowerUpManager.Instance == null) return;
+        
+        Debug.Log($"[PowerUpUI] 点击道具: {itemId}");
         
         bool success = PowerUpManager.Instance.UsePowerUp(itemId);
         if (success)
@@ -105,6 +102,7 @@ public class PowerUpUI : MonoBehaviour
         }
         else
         {
+            Debug.LogWarning($"[PowerUpUI] 使用道具失败: {itemId}");
             AudioManager.Instance.PlaySfx("Wrong");
         }
     }
@@ -132,16 +130,6 @@ public class PowerUpUI : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
             
             usedSlot.button.transform.localScale = originalScale;
-        }
-    }
-    
-    private void OnEnable()
-    {
-        // 重新加载数据并更新UI
-        if (PowerUpManager.Instance != null)
-        {
-            PowerUpManager.Instance.RefreshPowerUpData();
-            UpdatePowerUpUI();
         }
     }
 }

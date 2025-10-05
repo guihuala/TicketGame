@@ -342,7 +342,13 @@ MonoBehaviour:
   scaleAnimation: 1
   scaleFrom: {x: 0.8, y: 0.8}
   scaleDuration: 0.3
-  shopItemSlots: []
+  shopItemSlots:
+  - item: {fileID: 11400000, guid: a1b89343dca4d4b838c1d60a5b6f5011, type: 2}
+    buyButton: {fileID: 332207471649936171}
+  - item: {fileID: 11400000, guid: 31683becb4f194c93b56d1d66a7b6797, type: 2}
+    buyButton: {fileID: 2018191062172891595}
+  - item: {fileID: 11400000, guid: 83ecb6db2309c47cb80f971b247f1601, type: 2}
+    buyButton: {fileID: 6565062235589624381}
   coinsText: {fileID: 4330172674731567308}
   closeButton: {fileID: 7724504638601819746}
 --- !u!1 &7517787101288039754

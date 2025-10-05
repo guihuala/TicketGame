@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using System;
+using System.Globalization;
 
 public class TicketQueueController : MonoBehaviour
 {
@@ -100,15 +102,18 @@ public class TicketQueueController : MonoBehaviour
             {
                 string breakHint = "Intermission\nPrepare for the next movie...";
                 MsgCenter.SendMsg(MsgConst.MSG_SHOW_HINT, breakHint, 2f);
+                
+                // 跳到下一场电影开场前20分钟
+                JumpToNextShowTime();
             }
             else
             {
                 string endHint = "All sessions completed! \nCalculating results...";
                 MsgCenter.SendMsg(MsgConst.MSG_SHOW_HINT, endHint, 2f);
+                
+                // 所有场次结束，使用关卡配置的场次间隔时间
+                Invoke(nameof(StartShow), currentDay.timeBetweenShows);
             }
-        
-            // 使用关卡配置的场次间隔时间
-            Invoke(nameof(StartShow), currentDay.timeBetweenShows);
             return;
         }
 
@@ -130,6 +135,42 @@ public class TicketQueueController : MonoBehaviour
             });
 
         MsgCenter.SendMsg(MsgConst.MSG_TICKET_SPAWNED, currentTicket);
+    }
+
+    /// <summary>
+    /// 跳到下一场电影开场前20分钟
+    /// </summary>
+    private void JumpToNextShowTime()
+    {
+        if (showIndex >= currentDay.shows.Count) return;
+        
+        var nextShow = currentDay.shows[showIndex];
+        
+        try
+        {
+            // 解析下一场电影的开场时间
+            var nextShowTime = DateTime.ParseExact(nextShow.startTime, "HH:mm", CultureInfo.InvariantCulture);
+            
+            // 计算跳到开场前20分钟的时间
+            var targetTime = nextShowTime.AddMinutes(-20);
+            
+            // 将目标时间转换为秒数
+            float targetSeconds = (float)(targetTime.TimeOfDay.TotalSeconds);
+            
+            // 设置时钟时间
+            scheduleClock.simSeconds = targetSeconds;
+            
+            Debug.Log($"[TicketQueueController] 时间跳转: 跳到下一场 '{nextShow.filmTitle}' 开场前20分钟 ({targetTime:HH:mm})");
+            
+            // 立即开始下一场（不使用延迟）
+            StartShow();
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"[TicketQueueController] 时间跳转错误: {e.Message}");
+            // 出错时使用默认延迟
+            Invoke(nameof(StartShow), currentDay.timeBetweenShows);
+        }
     }
 
     private void ProcessTicketResult(CheckResult result)
