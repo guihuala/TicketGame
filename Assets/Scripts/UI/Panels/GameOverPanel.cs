@@ -83,7 +83,7 @@ public class GameOverPanel : BasePanel
                 if (i < starCount)
                 {
                     // 获得星星的视觉效果
-                    stars[i].color = Color.white;
+                    stars[i].color = Color.black;
                 }
                 else
                 {

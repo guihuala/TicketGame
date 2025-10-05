@@ -4,14 +4,16 @@ using UnityEngine.UI;
 
 public class HudController : MonoBehaviour
 {
-    public Button pauseButton;  // 暂停按钮
-    public Text moneyText;      // 显示金钱的 Text
-    public Text timeText;       // 显示时间的 Text
-    public Text scheduleText;   // 显示电影排期的 Text（新增）
+    public Button pauseButton;          // 暂停按钮
+    public Text moneyText;              // 显示金钱
+    public Text timeText;               // 显示时间
+    public Text scheduleText;           // 显示电影排期
+    public Text audienceCountText;      // 显示观影人数
 
     private EconomyManager economyManager;
     private ScheduleClock scheduleClock;
-    private TicketGenerator ticketGenerator; // 引用 TicketGenerator
+    private TicketGenerator ticketGenerator;
+    private TicketQueueController ticketQueueController;
 
     private void Awake()
     {
@@ -21,7 +23,8 @@ public class HudController : MonoBehaviour
         // 获取相关管理器
         economyManager = FindObjectOfType<EconomyManager>();
         scheduleClock = FindObjectOfType<ScheduleClock>();
-        ticketGenerator = FindObjectOfType<TicketGenerator>(); // 获取 TicketGenerator
+        ticketGenerator = FindObjectOfType<TicketGenerator>();
+        ticketQueueController = FindObjectOfType<TicketQueueController>();
     }
 
     private void Update()
@@ -34,13 +37,16 @@ public class HudController : MonoBehaviour
 
         // 更新当前电影排期
         UpdateScheduleDisplay();
+        
+        // 更新观影人数显示（新增）
+        UpdateAudienceCountDisplay();
     }
 
     private void UpdateMoneyDisplay()
     {
         if (economyManager != null && moneyText != null)
         {
-            moneyText.text = "Money: $" + economyManager.currentIncome.ToString();  // 显示当前金钱
+            moneyText.text = "Money: $" + economyManager.currentIncome.ToString();
         }
     }
 
@@ -48,9 +54,8 @@ public class HudController : MonoBehaviour
     {
         if (scheduleClock != null && timeText != null)
         {
-            // 将模拟时间转换为分钟：秒格式
             TimeSpan time = TimeSpan.FromSeconds(scheduleClock.simSeconds);
-            timeText.text = time.ToString(@"hh\:mm");  // 格式为小时:分钟
+            timeText.text = time.ToString(@"hh\:mm");
         }
     }
     
@@ -58,24 +63,33 @@ public class HudController : MonoBehaviour
     {
         if (ticketGenerator != null && scheduleText != null)
         {
-            // 获取当前关卡的排期信息
-            DaySchedule currentDay = ticketGenerator.GetCurrentDay();  // 获取当前关卡
+            DaySchedule currentDay = ticketGenerator.GetCurrentDay();
             if (currentDay != null)
             {
                 string scheduleInfo = "Current Movie Schedule:\n";
                 
                 foreach (var show in currentDay.shows)
                 {
-                    scheduleInfo += $"{show.filmTitle} - {show.startTime}\n";  // 添加每个场次的电影名和时间
+                    scheduleInfo += $"{show.filmTitle} - {show.startTime}\n";
                 }
                 
-                scheduleText.text = scheduleInfo;  // 更新电影排期文本
+                scheduleText.text = scheduleInfo;
             }
+        }
+    }
+    
+    private void UpdateAudienceCountDisplay()
+    {
+        if (ticketQueueController != null && audienceCountText != null)
+        {
+            int totalAudience = ticketQueueController.GetTotalAudienceCount();
+            int processedAudience = ticketQueueController.GetProcessedAudienceCount();
+            audienceCountText.text = $"{totalAudience - processedAudience}";
         }
     }
 
     private void OnPauseButtonClicked()
     {
-        UIManager.Instance.OpenPanel("PausePanel");  // 打开暂停面板
+        UIManager.Instance.OpenPanel("PausePanel");
     }
 }

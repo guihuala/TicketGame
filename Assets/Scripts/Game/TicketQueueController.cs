@@ -22,11 +22,17 @@ public class TicketQueueController : MonoBehaviour
     private TicketUI currentTicketUI;
     private bool showActive;
     private bool waitingForPlayerInput = false;
+    private int totalAudienceCount = 0;
+    private int processedAudienceCount = 0;
 
     void Start()
     {
         currentDay = generator.GetCurrentDay();
         showIndex = 0;
+        
+        // 初始化统计
+        totalAudienceCount = CalculateTotalAudienceCount();
+        processedAudienceCount = 0;
         
         ApplyLevelTimeSettings();
         StartShow();
@@ -112,16 +118,24 @@ public class TicketQueueController : MonoBehaviour
 
     private void ProcessTicketResult(CheckResult result)
     {
+        processedAudienceCount++;
+    
         // 应用经济结果
         economy.ApplyResult(result);
         MsgCenter.SendMsg(MsgConst.MSG_TICKET_CHECKED, currentTicket, result);
+
+        // 显示浮动文本
+        if (FloatingTextManager.Instance != null && currentTicketUI != null)
+        {
+            Vector3 worldPosition = currentTicketUI.transform.position;
+            FloatingTextManager.Instance.ShowMoneyChange(result.incomeDelta, worldPosition);
+        }
 
         // 根据结果移动票
         Vector3 targetPosition = result.outcome == TicketOutcome.CorrectAccept || result.outcome == TicketOutcome.WrongAccept 
             ? ticketAcceptPoint.position 
             : ticketRejectPoint.position;
-
-        // 使用关卡配置的滑出动画持续时间
+        
         currentTicketUI.transform.DOMove(targetPosition, currentDay.ticketSlideOutDuration)
             .SetEase(Ease.InBack)
             .OnComplete(() =>
@@ -133,12 +147,11 @@ public class TicketQueueController : MonoBehaviour
                 }
 
                 waitingForPlayerInput = false;
-                
+            
                 // 使用关卡配置的票间隔时间
                 Invoke(nameof(NextTicket), currentDay.timeBetweenTickets);
             });
     }
-
     public void AcceptCurrentTicket()
     {
         if (!waitingForPlayerInput || currentTicketUI == null) return;
@@ -174,5 +187,27 @@ public class TicketQueueController : MonoBehaviour
     public bool IsWaitingForInput()
     {
         return waitingForPlayerInput;
+    }
+    
+    private int CalculateTotalAudienceCount()
+    {
+        if (currentDay == null) return 0;
+        
+        int total = 0;
+        foreach (var show in currentDay.shows)
+        {
+            total += show.audienceCount;
+        }
+        return total;
+    }
+    
+    public int GetTotalAudienceCount()
+    {
+        return totalAudienceCount;
+    }
+    
+    public int GetProcessedAudienceCount()
+    {
+        return processedAudienceCount;
     }
 }

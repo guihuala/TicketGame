@@ -106,12 +106,16 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    // 游戏结束
+    // 修改游戏结束逻辑
     public void EndGame()
     {
         SetGameState(GameState.GameOver);
+        
+        // 计算并保存星星
+        CalculateAndSaveStars();
     }
     
+    // 修改重启关卡逻辑，不保存星星
     public void RestartCurrentLevel()
     {
         SetGameState(GameState.Playing);
@@ -131,4 +135,30 @@ public class GameManager : Singleton<GameManager>
     }
 
     #endregion
+    
+    // 在游戏结束时计算并保存星星
+    public void CalculateAndSaveStars()
+    {
+        if (economyManager == null) return;
+        
+        int totalIncome = economyManager.currentIncome;
+        int starsEarned = CalculateStars(totalIncome);
+        
+        // 保存进度
+        LevelProgressManager.CompleteLevel(selectedLevelIndex, starsEarned);
+        
+        Debug.Log($"关卡 {selectedLevelIndex} 完成! 收入: {totalIncome}, 获得星星: {starsEarned}");
+    }
+    
+    private int CalculateStars(int totalIncome)
+    {
+        DaySchedule currentLevel = ticketGenerator.GetCurrentDay();
+        if (currentLevel == null) return 0;
+        
+        if (totalIncome >= currentLevel.star3Income) return 3;
+        if (totalIncome >= currentLevel.star2Income) return 2;
+        if (totalIncome >= currentLevel.star1Income) return 1;
+        
+        return 0;
+    }
 }
