@@ -12,6 +12,11 @@ public class PowerUpManager : Singleton<PowerUpManager>
     public const string VIP_PASS_ID = "vip_pass";
     public const string BROADCAST_SYSTEM_ID = "broadcast_system";
     
+    // 道具图标引用（在编辑器中设置）
+    [SerializeField] private Sprite uvLightIcon;
+    [SerializeField] private Sprite vipPassIcon;
+    [SerializeField] private Sprite broadcastSystemIcon;
+    
     protected override void Awake()
     {
         base.Awake();
@@ -144,13 +149,46 @@ public class PowerUpManager : Singleton<PowerUpManager>
         return activePowerUps.ContainsKey(itemId) ? activePowerUps[itemId] : 0;
     }
     
-    // 手动刷新道具数据（比如从商店购买后调用）
+    // 检查道具是否可用
+    public bool IsPowerUpAvailable(string itemId)
+    {
+        return GetPowerUpCount(itemId) > 0;
+    }
+    
+    // 获取道具图标
+    public Sprite GetPowerUpIcon(string itemId)
+    {
+        switch (itemId)
+        {
+            case UV_LIGHT_ID:
+                return uvLightIcon;
+            case VIP_PASS_ID:
+                return vipPassIcon;
+            case BROADCAST_SYSTEM_ID:
+                return broadcastSystemIcon;
+            default:
+                Debug.LogWarning($"[PowerUpManager] 未知的道具ID，无法获取图标: {itemId}");
+                return null;
+        }
+    }
+    
+    // 获取道具名称
+    public string GetPowerUpName(string itemId)
+    {
+        switch (itemId)
+        {
+            case UV_LIGHT_ID: return "紫外线灯";
+            case VIP_PASS_ID: return "VIP票";
+            case BROADCAST_SYSTEM_ID: return "广播系统";
+            default: return "未知道具";
+        }
+    }
+    
     public void RefreshPowerUpData()
     {
         LoadPowerUpsFromPlayerPrefs();
     }
     
-    // 获取所有道具状态（用于调试）
     public void LogAllPowerUps()
     {
         Debug.Log("=== 当前道具状态 ===");

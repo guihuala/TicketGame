@@ -15,8 +15,6 @@ public class SceneLoader : SingletonPersistent<SceneLoader>
 {
     [Header("加载界面设置")]
     [SerializeField] private CanvasGroup loadingCanvas;
-    [SerializeField] private Image progressBar;
-    [SerializeField] private Text progressText;
     [SerializeField] private float fadeDuration = 0.5f;
     [SerializeField] private float minLoadingTime = 1.5f;
 
@@ -73,9 +71,6 @@ public class SceneLoader : SingletonPersistent<SceneLoader>
         // 更新加载进度
         while (!loadingOperation.isDone)
         {
-            float progress = Mathf.Clamp01(loadingOperation.progress / 0.9f);
-            UpdateProgressUI(progress);
-
             // 确保最小加载时间，然后激活场景
             if (loadingOperation.progress >= 0.9f && 
                 Time.time - startTime >= minLoadingTime)
@@ -118,16 +113,7 @@ public class SceneLoader : SingletonPersistent<SceneLoader>
             loadingCanvas.gameObject.SetActive(false);
         }
     }
-
-    private void UpdateProgressUI(float progress)
-    {
-        if (progressBar != null)
-            progressBar.fillAmount = progress;
-        
-        if (progressText != null)
-            progressText.text = $"{(progress * 100):0}%";
-    }
-
+    
     /// <summary>
     /// 检查是否正在加载
     /// </summary>
