@@ -73,9 +73,12 @@ public class TicketQueueController : MonoBehaviour
         currentQueue = generator.BuildQueueForShow(show);
         scheduleClock.SetTargetShow(show.filmTitle, show.startTime);
         showActive = true;
-
-        Debug.Log($"[TicketQueueController] 开始场次 {showIndex + 1}: {show.filmTitle} at {show.startTime}, 观众={show.audienceCount}");
+        
         MsgCenter.SendMsg(MsgConst.MSG_SHOW_START, show.filmTitle, show.startTime);
+
+        // 显示场次开始提示
+        string showHint = $"Scene {showIndex + 1}\n{show.filmTitle}\nStarts at {show.startTime}";
+        MsgCenter.SendMsg(MsgConst.MSG_SHOW_HINT, showHint, 2.5f);
 
         // 使用关卡配置的初始延迟
         Invoke(nameof(NextTicket), currentDay.initialTicketDelay);
@@ -88,11 +91,22 @@ public class TicketQueueController : MonoBehaviour
         if (currentQueue.Count == 0)
         {
             bool onTime = scheduleClock.AllProcessedBeforeShowtime();
-            Debug.Log($"[TicketQueueController] 场次 {showIndex + 1} 结束. 按时完成: {onTime}");
             MsgCenter.SendMsg(MsgConst.MSG_SHOW_END, onTime);
             showIndex++;
             showActive = false;
-            
+        
+            // 显示中场休息提示或游戏结束提示
+            if (showIndex < currentDay.shows.Count)
+            {
+                string breakHint = "Intermission\nPrepare for the next movie...";
+                MsgCenter.SendMsg(MsgConst.MSG_SHOW_HINT, breakHint, 2f);
+            }
+            else
+            {
+                string endHint = "All sessions completed! \nCalculating results...";
+                MsgCenter.SendMsg(MsgConst.MSG_SHOW_HINT, endHint, 2f);
+            }
+        
             // 使用关卡配置的场次间隔时间
             Invoke(nameof(StartShow), currentDay.timeBetweenShows);
             return;

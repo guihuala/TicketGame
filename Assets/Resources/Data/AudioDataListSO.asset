@@ -41,3 +41,5 @@ MonoBehaviour:
     audioPath: "Audio/Sfx/\u6495\u7968_3"
   - audioName: Click
     audioPath: "Audio/Sfx/\u70B9\u51FB\u6309\u94AE"
+  - audioName: Hover
+    audioPath: "Audio/Sfx/\u60AC\u6D6E\u6309\u94AE"

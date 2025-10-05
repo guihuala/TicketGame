@@ -8,6 +8,7 @@ public class DayScheduleEditor : Editor
 {
     private DaySchedule schedule;
     private Vector2 scrollPosition;
+    private bool showBasicInfo = true;
     private bool showTimeSettings = true;
     private bool showShows = true;
 
@@ -23,6 +24,16 @@ public class DayScheduleEditor : Editor
         EditorGUILayout.Space();
         EditorGUILayout.LabelField("Check my tickets - 关卡配置", EditorStyles.boldLabel);
         EditorGUILayout.Space();
+        
+        // 基本信息折叠面板
+        showBasicInfo = EditorGUILayout.Foldout(showBasicInfo, "关卡基本信息", true);
+        if (showBasicInfo)
+        {
+            EditorGUI.indentLevel++;
+            DrawBasicInfo();
+            EditorGUI.indentLevel--;
+            EditorGUILayout.Space();
+        }
 
         // 时间设置折叠面板
         showTimeSettings = EditorGUILayout.Foldout(showTimeSettings, "时间设置", true);
@@ -49,61 +60,82 @@ public class DayScheduleEditor : Editor
 
         serializedObject.ApplyModifiedProperties();
     }
-
-private void DrawTimeSettings()
-{
-    // 关卡开始时间
-    EditorGUILayout.LabelField("关卡开始时间", EditorStyles.miniLabel);
     
-    EditorGUILayout.BeginHorizontal();
+    private void DrawBasicInfo()
     {
-        schedule.levelStartTime = EditorGUILayout.TextField("开始时间(HH:mm)", schedule.levelStartTime);
+        EditorGUILayout.LabelField("关卡名称", EditorStyles.miniLabel);
+        schedule.levelName = EditorGUILayout.TextField("名称", schedule.levelName);
         
-        // 验证时间格式
-        if (!schedule.IsStartTimeValid())
+        // 提供一些预设关卡名按钮
+        EditorGUILayout.BeginHorizontal();
         {
-            EditorGUILayout.LabelField("格式错误", GUILayout.Width(80));
+            if (GUILayout.Button("早班", GUILayout.Width(50))) schedule.levelName = "早班检票";
+            if (GUILayout.Button("午班", GUILayout.Width(50))) schedule.levelName = "午班检票";
+            if (GUILayout.Button("晚班", GUILayout.Width(50))) schedule.levelName = "晚班检票";
+            if (GUILayout.Button("周末", GUILayout.Width(50))) schedule.levelName = "周末高峰";
+            if (GUILayout.Button("节日", GUILayout.Width(50))) schedule.levelName = "节日特场";
+            GUILayout.FlexibleSpace();
         }
-        else
-        {
-            EditorGUILayout.LabelField("格式正确", GUILayout.Width(80));
-        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space();
+        EditorGUILayout.HelpBox($"关卡: {schedule.levelName}", MessageType.Info);
     }
-    EditorGUILayout.EndHorizontal();
-    
-    // 提供快速选择常用时间的按钮
-    EditorGUILayout.BeginHorizontal();
+
+    private void DrawTimeSettings()
     {
-        if (GUILayout.Button("08:00", GUILayout.Width(60))) schedule.levelStartTime = "08:00";
-        if (GUILayout.Button("09:30", GUILayout.Width(60))) schedule.levelStartTime = "09:30";
-        if (GUILayout.Button("11:00", GUILayout.Width(60))) schedule.levelStartTime = "11:00";
-        if (GUILayout.Button("13:15", GUILayout.Width(60))) schedule.levelStartTime = "13:15";
-        if (GUILayout.Button("14:45", GUILayout.Width(60))) schedule.levelStartTime = "14:45";
-        GUILayout.FlexibleSpace();
+        // 关卡开始时间
+        EditorGUILayout.LabelField("关卡开始时间", EditorStyles.miniLabel);
+
+        EditorGUILayout.BeginHorizontal();
+        {
+            schedule.levelStartTime = EditorGUILayout.TextField("开始时间(HH:mm)", schedule.levelStartTime);
+
+            // 验证时间格式
+            if (!schedule.IsStartTimeValid())
+            {
+                EditorGUILayout.LabelField("格式错误", GUILayout.Width(80));
+            }
+            else
+            {
+                EditorGUILayout.LabelField("格式正确", GUILayout.Width(80));
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+
+        // 提供快速选择常用时间的按钮
+        EditorGUILayout.BeginHorizontal();
+        {
+            if (GUILayout.Button("08:00", GUILayout.Width(60))) schedule.levelStartTime = "08:00";
+            if (GUILayout.Button("09:30", GUILayout.Width(60))) schedule.levelStartTime = "09:30";
+            if (GUILayout.Button("11:00", GUILayout.Width(60))) schedule.levelStartTime = "11:00";
+            if (GUILayout.Button("13:15", GUILayout.Width(60))) schedule.levelStartTime = "13:15";
+            if (GUILayout.Button("14:45", GUILayout.Width(60))) schedule.levelStartTime = "14:45";
+            GUILayout.FlexibleSpace();
+        }
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("时间流速", EditorStyles.miniLabel);
+        schedule.timeScale = EditorGUILayout.Slider("时间比例", schedule.timeScale, 0.1f, 5f);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("时间间隔", EditorStyles.miniLabel);
+        schedule.timeBetweenShows = EditorGUILayout.FloatField("场次间隔(秒)", schedule.timeBetweenShows);
+        schedule.timeBetweenTickets = EditorGUILayout.FloatField("票间隔(秒)", schedule.timeBetweenTickets);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("动画时间", EditorStyles.miniLabel);
+        schedule.ticketSlideInDuration = EditorGUILayout.FloatField("滑入动画(秒)", schedule.ticketSlideInDuration);
+        schedule.ticketSlideOutDuration = EditorGUILayout.FloatField("滑出动画(秒)", schedule.ticketSlideOutDuration);
+        schedule.initialTicketDelay = EditorGUILayout.FloatField("初始延迟(秒)", schedule.initialTicketDelay);
+
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("评分标准", EditorStyles.miniLabel);
+        schedule.star1Income = EditorGUILayout.IntField("1星收入", schedule.star1Income);
+        schedule.star2Income = EditorGUILayout.IntField("2星收入", schedule.star2Income);
+        schedule.star3Income = EditorGUILayout.IntField("3星收入", schedule.star3Income);
     }
-    EditorGUILayout.EndHorizontal();
-
-    EditorGUILayout.Space();
-    EditorGUILayout.LabelField("时间流速", EditorStyles.miniLabel);
-    schedule.timeScale = EditorGUILayout.Slider("时间比例", schedule.timeScale, 0.1f, 5f);
-
-    EditorGUILayout.Space();
-    EditorGUILayout.LabelField("时间间隔", EditorStyles.miniLabel);
-    schedule.timeBetweenShows = EditorGUILayout.FloatField("场次间隔(秒)", schedule.timeBetweenShows);
-    schedule.timeBetweenTickets = EditorGUILayout.FloatField("票间隔(秒)", schedule.timeBetweenTickets);
-
-    EditorGUILayout.Space();
-    EditorGUILayout.LabelField("动画时间", EditorStyles.miniLabel);
-    schedule.ticketSlideInDuration = EditorGUILayout.FloatField("滑入动画(秒)", schedule.ticketSlideInDuration);
-    schedule.ticketSlideOutDuration = EditorGUILayout.FloatField("滑出动画(秒)", schedule.ticketSlideOutDuration);
-    schedule.initialTicketDelay = EditorGUILayout.FloatField("初始延迟(秒)", schedule.initialTicketDelay);
-
-    EditorGUILayout.Space();
-    EditorGUILayout.LabelField("评分标准", EditorStyles.miniLabel);
-    schedule.star1Income = EditorGUILayout.IntField("1星收入", schedule.star1Income);
-    schedule.star2Income = EditorGUILayout.IntField("2星收入", schedule.star2Income);
-    schedule.star3Income = EditorGUILayout.IntField("3星收入", schedule.star3Income);
-}
 
     private void DrawShowsConfiguration()
     {
@@ -276,7 +308,7 @@ private void DrawTimeSettings()
         EditorGUILayout.EndVertical();
     }
 
-// 显示其他场次选择菜单
+    // 显示其他场次选择菜单
     private void ShowOtherShowsMenu(DaySchedule.SpecialEventConfig config)
     {
         GenericMenu menu = new GenericMenu();

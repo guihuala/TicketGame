@@ -5,33 +5,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "DaySchedule", menuName = "Game/Schedule/DaySchedule")]
 public class DaySchedule : ScriptableObject
 {
-    [Serializable]
-    public class SpecialEventConfig
-    {
-        public SpecialEventType type;
-        public int count;
-        public string customFilmTitle;
-        public string customShowTime;
-        public bool shouldAccept;
-        public string targetFilmTitle; // 目标电影（用于提前检票到其他场次）
-        public string targetShowTime;   // 目标时间（用于提前检票到其他场次）
-    }
-
-    [Serializable]
-    public class Show
-    {
-        [Header("基本信息")]
-        public string filmTitle;
-        public string startTime;
-        [Range(0, 200)] public int audienceCount = 0;
-        
-        [Header("票价设置")]
-        [Tooltip("本场次单张票的价格")]
-        [Range(1, 20)] public int ticketPrice = 1;
-
-        [Header("特殊事件配置")]
-        public List<SpecialEventConfig> specialEvents = new List<SpecialEventConfig>();
-    }
+    [Header("关卡基本信息")]
+    [Tooltip("关卡名称（显示用）")]
+    public string levelName = "04/10/25";
     
     [Header("关卡开始时间")]
     [Tooltip("关卡开始的游戏时间 (HH:mm 格式，如 08:30、14:15)")]
@@ -89,5 +65,33 @@ public class DaySchedule : ScriptableObject
         
         // 默认返回8:00
         return 8 * 3600f;
+    }
+
+    [Serializable]
+    public class SpecialEventConfig
+    {
+        public SpecialEventType type;
+        public int count;
+        public string customFilmTitle;
+        public string customShowTime;
+        public bool shouldAccept;
+        public string targetFilmTitle; // 目标电影（用于提前检票到其他场次）
+        public string targetShowTime;   // 目标时间（用于提前检票到其他场次）
+    }
+
+    [Serializable]
+    public class Show
+    {
+        [Header("基本信息")]
+        public string filmTitle;
+        public string startTime;
+        [Range(0, 200)] public int audienceCount = 0;
+        
+        [Header("票价设置")]
+        [Tooltip("本场次单张票的价格")]
+        [Range(1, 20)] public int ticketPrice = 1;
+
+        [Header("特殊事件配置")]
+        public List<SpecialEventConfig> specialEvents = new List<SpecialEventConfig>();
     }
 }

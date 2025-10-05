@@ -178,6 +178,12 @@ public class TicketGenerator : MonoBehaviour
         if (database == null || database.levels == null || database.levels.Length == 0) return null;
         return database.levels[Mathf.Clamp(currentLevelIndex, 0, database.levels.Length - 1)];
     }
+    
+    public string GetCurrentLevelName()
+    {
+        var currentDay = GetCurrentDay();
+        return currentDay != null ? currentDay.levelName : "unknown";
+    }
 
     public void SetLevel(int index) => currentLevelIndex = index;
     public void SetDatabase(LevelDatabase db) => database = db;

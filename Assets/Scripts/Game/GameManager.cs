@@ -66,8 +66,9 @@ public class GameManager : Singleton<GameManager>
         DaySchedule currentLevel = ticketGenerator.GetCurrentDay();
         if (currentLevel != null)
         {
-            Debug.Log($"开始关卡: {currentLevel.name}");
-            
+            string hintText = ticketGenerator.GetCurrentLevelName();
+            MsgCenter.SendMsg(MsgConst.MSG_SHOW_HINT, hintText, 3f);
+        
             // 统一在这里初始化经济管理器
             if (economyManager != null)
             {
@@ -78,7 +79,7 @@ public class GameManager : Singleton<GameManager>
             {
                 Debug.LogWarning("[GameManager] 找不到 EconomyManager");
             }
-            
+        
             // 设置时间比例
             TimeManager.Instance.SetTimeFactor(currentLevel.timeScale);
         }
