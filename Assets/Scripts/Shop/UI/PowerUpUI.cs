@@ -9,7 +9,6 @@ public class PowerUpUI : MonoBehaviour
         public string itemId;
         public Button button;
         public Text countText;
-        public Image icon;
         public Text nameText;
         public GameObject slotContainer; // 整个槽位的容器，用于隐藏/显示
     }
@@ -32,18 +31,6 @@ public class PowerUpUI : MonoBehaviour
         
         foreach (var slot in powerUpSlots)
         {
-            // 设置图标
-            Sprite iconSprite = PowerUpManager.Instance.GetPowerUpIcon(slot.itemId);
-            if (iconSprite != null && slot.icon != null)
-            {
-                slot.icon.sprite = iconSprite;
-                slot.icon.preserveAspect = true; // 保持图标比例
-            }
-            else if (slot.icon != null)
-            {
-                Debug.LogWarning($"[PowerUpUI] 无法为道具 {slot.itemId} 加载图标");
-            }
-            
             // 设置名称
             if (slot.nameText != null)
             {
@@ -88,8 +75,6 @@ public class PowerUpUI : MonoBehaviour
                 slot.button.gameObject.SetActive(hasPowerUp);
                 
                 // 同时隐藏图标和文本
-                if (slot.icon != null)
-                    slot.icon.gameObject.SetActive(hasPowerUp);
                 if (slot.nameText != null)
                     slot.nameText.gameObject.SetActive(hasPowerUp);
                 if (slot.countText != null)
@@ -101,19 +86,6 @@ public class PowerUpUI : MonoBehaviour
             if (canvasGroup != null)
             {
                 canvasGroup.alpha = hasPowerUp ? 1f : 0.3f;
-            }
-            else if (slot.icon != null)
-            {
-                // 如果没有CanvasGroup，直接调整图标颜色
-                Color iconColor = slot.icon.color;
-                iconColor.a = hasPowerUp ? 1f : 0.3f;
-                slot.icon.color = iconColor;
-            }
-            
-            // 更新名称文本颜色
-            if (slot.nameText != null)
-            {
-                slot.nameText.color = hasPowerUp ? Color.white : new Color(1f, 1f, 1f, 0.3f);
             }
         }
     }

@@ -12,11 +12,6 @@ public class PowerUpManager : Singleton<PowerUpManager>
     public const string VIP_PASS_ID = "vip_pass";
     public const string BROADCAST_SYSTEM_ID = "broadcast_system";
     
-    // 道具图标引用（在编辑器中设置）
-    [SerializeField] private Sprite uvLightIcon;
-    [SerializeField] private Sprite vipPassIcon;
-    [SerializeField] private Sprite broadcastSystemIcon;
-    
     protected override void Awake()
     {
         base.Awake();
@@ -154,24 +149,7 @@ public class PowerUpManager : Singleton<PowerUpManager>
     {
         return GetPowerUpCount(itemId) > 0;
     }
-    
-    // 获取道具图标
-    public Sprite GetPowerUpIcon(string itemId)
-    {
-        switch (itemId)
-        {
-            case UV_LIGHT_ID:
-                return uvLightIcon;
-            case VIP_PASS_ID:
-                return vipPassIcon;
-            case BROADCAST_SYSTEM_ID:
-                return broadcastSystemIcon;
-            default:
-                Debug.LogWarning($"[PowerUpManager] 未知的道具ID，无法获取图标: {itemId}");
-                return null;
-        }
-    }
-    
+
     // 获取道具名称
     public string GetPowerUpName(string itemId)
     {
@@ -187,15 +165,5 @@ public class PowerUpManager : Singleton<PowerUpManager>
     public void RefreshPowerUpData()
     {
         LoadPowerUpsFromPlayerPrefs();
-    }
-    
-    public void LogAllPowerUps()
-    {
-        Debug.Log("=== 当前道具状态 ===");
-        foreach (var kvp in activePowerUps)
-        {
-            Debug.Log($"{kvp.Key}: {kvp.Value}次");
-        }
-        Debug.Log("===================");
     }
 }

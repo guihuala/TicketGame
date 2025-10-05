@@ -148,8 +148,6 @@ public class GameManager : Singleton<GameManager>
         LevelProgressManager.CompleteLevel(selectedLevelIndex, starsEarned);
         
         CurrencyManager.AddCoins(totalIncome);
-    
-        Debug.Log($"关卡 {selectedLevelIndex} 完成! 收入: {totalIncome}, 获得星星: {starsEarned}, 金币奖励: {totalIncome}");
     }
     
     private int CalculateStars(int totalIncome)

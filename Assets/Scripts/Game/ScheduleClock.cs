@@ -43,15 +43,26 @@ public class ScheduleClock : MonoBehaviour
 
     public bool IsFilmToday(string film) => !string.IsNullOrEmpty(currentFilm) && currentFilm == film;
     public bool IsCorrectShowtime(string show) => !string.IsNullOrEmpty(currentShowTime) && currentShowTime == show;
-
+    
     public bool IsEarlierThanMinutes(string showHHmm, int minutes)
     {
         var now = SecondsToTime(simSeconds);
-        var show = DateTime.ParseExact(showHHmm, "HH:mm", System.Globalization.CultureInfo.InvariantCulture);
-        return (show - now).TotalMinutes >= minutes;
+        var show = DateTime.ParseExact(showHHmm, "HH:mm", CultureInfo.InvariantCulture);
+    
+        // 计算距离开场还有多少分钟
+        double minutesUntilShow = (show - now).TotalMinutes;
+    
+        // 如果距离开场还有20分钟或更多，就属于提前检票
+        return minutesUntilShow >= minutes;
     }
-
-    public void MarkFailedTiming() => finishedBeforeShowtime = false;
+    
+    public double GetMinutesUntilShowtime(string showHHmm)
+    {
+        var now = SecondsToTime(simSeconds);
+        var show = DateTime.ParseExact(showHHmm, "HH:mm", CultureInfo.InvariantCulture);
+        return (show - now).TotalMinutes;
+    }
+    
     public bool AllProcessedBeforeShowtime() => finishedBeforeShowtime;
 
     private DateTime SecondsToTime(float s)

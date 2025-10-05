@@ -554,8 +554,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 3d6c677f6648840ecb703e8671c2ea52, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1216,9 +1216,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 72fad6dd453354483825a761a3eb9ac4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uvLightIcon: {fileID: 0}
-  vipPassIcon: {fileID: 0}
-  broadcastSystemIcon: {fileID: 0}
 --- !u!1 &755381922
 GameObject:
   m_ObjectHideFlags: 0
@@ -2787,8 +2784,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: da2dfcf53ed8a4f13a0acd7f8823cf59, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -4002,19 +3999,16 @@ MonoBehaviour:
   - itemId: 1
     button: {fileID: 1308274488}
     countText: {fileID: 1065298701}
-    icon: {fileID: 1308274489}
     nameText: {fileID: 1772924257}
     slotContainer: {fileID: 0}
   - itemId: 1
     button: {fileID: 392663110}
     countText: {fileID: 1683150008}
-    icon: {fileID: 392663111}
     nameText: {fileID: 1102247665}
     slotContainer: {fileID: 0}
   - itemId: 3
     button: {fileID: 1839362799}
     countText: {fileID: 1513434728}
-    icon: {fileID: 1839362800}
     nameText: {fileID: 1312648962}
     slotContainer: {fileID: 0}
 --- !u!222 &1723130753
@@ -4548,8 +4542,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: fa0e3e919a9f6490a8a862f9f0cae668, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4

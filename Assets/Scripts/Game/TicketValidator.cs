@@ -27,11 +27,13 @@ public class TicketValidator : MonoBehaviour
         bool nameMatch = clock.IsFilmToday(t.filmTitle);
         bool timeMatch = clock.IsCorrectShowtime(t.showTime);
         bool tooEarly = clock.IsEarlierThanMinutes(t.showTime, 20);
+        
+        // 添加详细的时间调试信息
+        Debug.Log($"[ValidateAccept] 当前时间: {clock.GetCurrentGameTime()}, 电影开场: {t.showTime}");
+        Debug.Log($"[ValidateAccept] 距离开场还有: {clock.GetMinutesUntilShowtime(t.showTime):F1} 分钟");
+        Debug.Log($"[ValidateAccept] 是否提前20分钟: {tooEarly}");
 
-        // 调试信息
-        Debug.Log($"[ValidateAccept] 票: {t.filmTitle} {t.showTime}, 特殊={t.special}, 有票根={t.hasStub}");
-        Debug.Log($"[ValidateAccept] 匹配: 电影={nameMatch}, 时间={timeMatch}, 过早={tooEarly}");
-
+        
         // 1. 检查片名错误（电影没有在本影院放映）
         if (!nameMatch)
         {
