@@ -7,6 +7,8 @@ public class TicketUI : MonoBehaviour
     private TicketData current;
     public TicketQueueController queue;
 
+    private string[] tearSounds = { "Tear_1", "Tear_2", "Tear_3" };
+    
     private void OnEnable()
     {
         InputController.Instance.onAcceptTicket += OnAcceptTicket;
@@ -33,6 +35,7 @@ public class TicketUI : MonoBehaviour
     {
         if (queue != null && queue.IsWaitingForInput())
         {
+            PlayRandomTearSound();
             queue.AcceptCurrentTicket();
         }
     }
@@ -43,5 +46,11 @@ public class TicketUI : MonoBehaviour
         {
             queue.RejectCurrentTicket();
         }
+    }
+    
+    private void PlayRandomTearSound()
+    {
+        int randomIndex = Random.Range(0, tearSounds.Length);
+        AudioManager.Instance.PlaySfx(tearSounds[randomIndex]);
     }
 }

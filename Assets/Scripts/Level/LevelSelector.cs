@@ -14,9 +14,20 @@ public class LevelSelector : MonoBehaviour
     }
 
     [SerializeField] private LevelButtonData[] levelButtons;
+    [SerializeField] private Button backButton; // 返回按钮
 
     void Start()
     {
+        // 设置返回按钮的点击事件
+        if (backButton != null)
+        {
+            backButton.onClick.AddListener(OnBackButtonClicked);
+        }
+        else
+        {
+            Debug.LogWarning("Back button is not assigned in LevelSelector");
+        }
+
         UpdateLevelButtons();
         
         // 为每个按钮添加点击事件
@@ -71,5 +82,10 @@ public class LevelSelector : MonoBehaviour
         Debug.Log("Level selected: " + levelIndex);
         PlayerPrefs.SetInt("SelectedLevelIndex", levelIndex);
         SceneLoader.Instance.LoadScene(GameScene.Gameplay);
+    }
+    
+    private void OnBackButtonClicked()
+    {
+        SceneLoader.Instance.LoadScene(GameScene.MainMenu);
     }
 }

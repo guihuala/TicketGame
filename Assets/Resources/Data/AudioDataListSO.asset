@@ -13,19 +13,31 @@ MonoBehaviour:
   m_Name: AudioDataListSO
   m_EditorClassIdentifier: 
   audioDataList:
-  - audioName: glass_005
-    audioPath: Audio/Sfx/glass_005
-  - audioName: glass_006
-    audioPath: Audio/Sfx/glass_006
-  - audioName: maximize_001
-    audioPath: Audio/Sfx/maximize_001
-  - audioName: maximize_002
-    audioPath: Audio/Sfx/maximize_002
-  - audioName: minimize_008
-    audioPath: Audio/Sfx/minimize_008
-  - audioName: minimize_009
-    audioPath: Audio/Sfx/minimize_009
-  - audioName: scroll_005
-    audioPath: Audio/Sfx/scroll_005
-  - audioName: select_005
-    audioPath: Audio/Sfx/select_005
+  - audioName: CountDown
+    audioPath: "Audio/Sfx/\u5012\u8BA1\u65F6"
+  - audioName: 1Star
+    audioPath: "Audio/Sfx/\u5173\u5361\u8BC4\u7EA71\u661F"
+  - audioName: 2Star
+    audioPath: "Audio/Sfx/\u5173\u5361\u8BC4\u7EA72\u661F"
+  - audioName: 3Star
+    audioPath: "Audio/Sfx/\u5173\u5361\u8BC4\u7EA73\u661F"
+  - audioName: Ticket_in
+    audioPath: "Audio/Sfx/\u62FF\u6765\u7535\u5F71\u7968"
+  - audioName: GameOver
+    audioPath: "Audio/Sfx/\u7ED3\u7B97\u754C\u9762"
+  - audioName: Success
+    audioPath: "Audio/Sfx/\u5339\u914D\u6210\u529F"
+  - audioName: Wrong
+    audioPath: "Audio/Sfx/\u5339\u914D\u9519\u8BEF"
+  - audioName: Ticket_out
+    audioPath: "Audio/Sfx/\u62FF\u8D70\u7535\u5F71\u7968"
+  - audioName: "\u63D0\u793A\u6587\u5B57\u5F39\u51FA"
+    audioPath: "Audio/Sfx/\u63D0\u793A\u6587\u5B57\u5F39\u51FA"
+  - audioName: Tear_1
+    audioPath: "Audio/Sfx/\u6495\u7968_1"
+  - audioName: Tear_2
+    audioPath: "Audio/Sfx/\u6495\u7968_2"
+  - audioName: Tear_3
+    audioPath: "Audio/Sfx/\u6495\u7968_3"
+  - audioName: Click
+    audioPath: "Audio/Sfx/\u70B9\u51FB\u6309\u94AE"

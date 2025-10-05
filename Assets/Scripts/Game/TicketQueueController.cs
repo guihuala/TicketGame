@@ -104,6 +104,8 @@ public class TicketQueueController : MonoBehaviour
         currentTicketUI = Instantiate(ticketUIPrefab, ticketSpawnPoint.position, Quaternion.identity, parentForTickets);
         currentTicketUI.BindTicket(currentTicket);
         currentTicketUI.queue = this;
+        
+        AudioManager.Instance.PlaySfx("Ticket_in");
 
         // 使用关卡配置的滑入动画持续时间
         currentTicketUI.transform.DOMove(ticketDisplayPoint.position, currentDay.ticketSlideInDuration)
@@ -136,6 +138,8 @@ public class TicketQueueController : MonoBehaviour
             ? ticketAcceptPoint.position 
             : ticketRejectPoint.position;
         
+        AudioManager.Instance.PlaySfx("Ticket_out");
+        
         currentTicketUI.transform.DOMove(targetPosition, currentDay.ticketSlideOutDuration)
             .SetEase(Ease.InBack)
             .OnComplete(() =>
@@ -152,12 +156,24 @@ public class TicketQueueController : MonoBehaviour
                 Invoke(nameof(NextTicket), currentDay.timeBetweenTickets);
             });
     }
+    
     public void AcceptCurrentTicket()
     {
         if (!waitingForPlayerInput || currentTicketUI == null) return;
 
         // 传递当前关卡数据给验证器
         var result = validator.ValidateAccept(currentTicket, scheduleClock, currentDay);
+        
+        // 根据验票结果播放对应的音效
+        if (result.outcome == TicketOutcome.CorrectAccept)
+        {
+            AudioManager.Instance.PlaySfx("Success");
+        }
+        else if (result.outcome == TicketOutcome.WrongAccept)
+        {
+            AudioManager.Instance.PlaySfx("Wrong");
+        }
+        
         // 触发撕票动画
         if (currentTicketUI != null)
         {
@@ -180,7 +196,17 @@ public class TicketQueueController : MonoBehaviour
         // 传递当前关卡数据给验证器
         var result = validator.ValidateReject(currentTicket, scheduleClock, currentDay);
         Debug.Log($"[TicketQueueController] 结果: {result.outcome}, 收入变化={result.incomeDelta}, 原因={result.reason}");
-
+        
+        // 根据验票结果播放对应的音效
+        if (result.outcome == TicketOutcome.CorrectReject)
+        {
+            AudioManager.Instance.PlaySfx("Success");
+        }
+        else if (result.outcome == TicketOutcome.WrongReject)
+        {
+            AudioManager.Instance.PlaySfx("Wrong");
+        }
+        
         ProcessTicketResult(result);
     }
     
