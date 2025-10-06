@@ -79,7 +79,6 @@ public class PowerUpUI : MonoBehaviour
         if (success)
         {
             UpdatePowerUpUI();
-            AudioManager.Instance.PlaySfx("PowerUp_Use");
             
             // 可以添加使用成功的视觉反馈
             StartCoroutine(PlayUseEffect(itemId));

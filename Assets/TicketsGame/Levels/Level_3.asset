@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   levelName: 06/10/25
   levelDate: 06/10/25
-  levelStartTime: 08:00
+  levelStartTime: 09:25
   shows:
   - filmTitle: Avocadar
     startTime: 09:45

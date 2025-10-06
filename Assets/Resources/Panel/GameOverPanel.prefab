@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1846223680511489303}
   - component: {fileID: 421199552828434083}
   - component: {fileID: 2075897307053681305}
+  - component: {fileID: 6450784216801844090}
   m_Layer: 5
   m_Name: Star
   m_TagString: Untagged
@@ -75,6 +76,27 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!95 &6450784216801844090
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1146945422038938654}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 1c17f478c62b7442eaf23b82073973aa, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1644973130192658826
 GameObject:
   m_ObjectHideFlags: 0
@@ -86,6 +108,7 @@ GameObject:
   - component: {fileID: 3117390368203198403}
   - component: {fileID: 4965545259690131068}
   - component: {fileID: 6130995162453565739}
+  - component: {fileID: 2885920747587725201}
   m_Layer: 5
   m_Name: Star (2)
   m_TagString: Untagged
@@ -150,6 +173,27 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!95 &2885920747587725201
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1644973130192658826}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 1c17f478c62b7442eaf23b82073973aa, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1653310144268205098
 GameObject:
   m_ObjectHideFlags: 0
@@ -357,6 +401,7 @@ GameObject:
   - component: {fileID: 8063661483412197449}
   - component: {fileID: 6101312688022089259}
   - component: {fileID: 1846408378636718849}
+  - component: {fileID: 1882030925977376023}
   m_Layer: 5
   m_Name: Star (1)
   m_TagString: Untagged
@@ -421,6 +466,27 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!95 &1882030925977376023
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1879611659301759487}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 1c17f478c62b7442eaf23b82073973aa, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &4493600530942257772
 GameObject:
   m_ObjectHideFlags: 0
@@ -753,6 +819,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af92e19e9be474012b942ba5adb79140, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animationType: 0
   fadeInDuration: 0.5
   fadeOutDuration: 0.5
   fadeInEase: 6
@@ -760,6 +827,14 @@ MonoBehaviour:
   scaleAnimation: 1
   scaleFrom: {x: 0.8, y: 0.8}
   scaleDuration: 0.3
+  slideDirection: 0
+  slideDistance: 100
+  slideDuration: 0.5
+  elasticStrength: 0.5
+  elasticVibrato: 10
+  elasticDuration: 0.6
+  useCombinedAnimations: 0
+  combinedAnimationTypes: 
   amountText: {fileID: 7562265225383042004}
   stars:
   - {fileID: 2075897307053681305}
