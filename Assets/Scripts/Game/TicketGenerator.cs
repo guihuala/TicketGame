@@ -303,7 +303,6 @@ public class TicketGenerator : MonoBehaviour
             var level = database.levels[clampedIndex];
             if (level != null)
             {
-                Debug.Log($"[TicketGenerator] 加载关卡: {level.levelName}, 开始时间: {level.levelStartTime}，索引{currentLevelIndex}");
                 return level;
             }
         }

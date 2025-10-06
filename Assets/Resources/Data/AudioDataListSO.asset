@@ -15,12 +15,6 @@ MonoBehaviour:
   audioDataList:
   - audioName: CountDown
     audioPath: "Audio/Sfx/\u5012\u8BA1\u65F6"
-  - audioName: 1Star
-    audioPath: "Audio/Sfx/\u5173\u5361\u8BC4\u7EA71\u661F"
-  - audioName: 2Star
-    audioPath: "Audio/Sfx/\u5173\u5361\u8BC4\u7EA72\u661F"
-  - audioName: 3Star
-    audioPath: "Audio/Sfx/\u5173\u5361\u8BC4\u7EA73\u661F"
   - audioName: Ticket_in
     audioPath: "Audio/Sfx/\u62FF\u6765\u7535\u5F71\u7968"
   - audioName: GameOver

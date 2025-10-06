@@ -67,6 +67,35 @@ public class ScheduleClock : MonoBehaviour
         return SecondsToTime(simSeconds).ToString("HH:mm");
     }
     
+    // 在 ScheduleClock.cs 中添加方法
+
+    /// <summary>
+    /// 获取距离指定场次还有多少分钟
+    /// </summary>
+    public double GetMinutesUntilShowtime(string showHHmm)
+    {
+        try
+        {
+            var now = SecondsToTime(simSeconds);
+            var show = DateTime.ParseExact(showHHmm, "HH:mm", CultureInfo.InvariantCulture);
+        
+            return (show - now).TotalMinutes;
+        }
+        catch
+        {
+            return -1; // 错误时返回-1
+        }
+    }
+
+    /// <summary>
+    /// 检查是否已经错过指定场次
+    /// </summary>
+    public bool IsShowtimeMissed(string showHHmm)
+    {
+        double minutesUntilShow = GetMinutesUntilShowtime(showHHmm);
+        return minutesUntilShow < 0; // 负值表示已经错过
+    }
+    
     public string CurrentFilm => currentFilm;
     public string CurrentShowTime => currentShowTime;
 }

@@ -322,44 +322,10 @@ public class HudController : MonoBehaviour
         if (scheduleClock != null && timeText != null)
         {
             TimeSpan time = TimeSpan.FromSeconds(scheduleClock.simSeconds);
-        
-            // 获取当前关卡日期
-            DaySchedule currentDay = ticketGenerator.GetCurrentLevel();
-            if (currentDay != null && !string.IsNullOrEmpty(currentDay.levelDate))
-            {
-                try
-                {
-                    // 解析关卡日期
-                    string[] dateParts = currentDay.levelDate.Split('/');
-                    if (dateParts.Length == 3)
-                    {
-                        string month = dateParts[0];
-                        string day = dateParts[1];
-                        string year = dateParts[2];
-                    
-                        // 格式：月份/日/年 时:分
-                        timeText.text = $"{month}/{day}/{year} {time.Hours:D2}:{time.Minutes:D2}";
-                    }
-                    else
-                    {
-                        // 如果日期格式不正确，使用默认格式
-                        timeText.text = $"{time.Hours:D2}:{time.Minutes:D2}";
-                    }
-                }
-                catch (System.Exception e)
-                {
-                    Debug.LogError($"时间显示格式化错误: {e.Message}");
-                    timeText.text = $"{time.Hours:D2}:{time.Minutes:D2}";
-                }
-            }
-            else
-            {
-                // 如果没有关卡日期，只显示时间
-                timeText.text = $"{time.Hours:D2}:{time.Minutes:D2}";
-            }
+            timeText.text = time.ToString(@"hh\:mm");
         }
     }
-    
+
     private void UpdateAudienceCountDisplay()
     {
         if (ticketQueueController != null && audienceCountText != null)
