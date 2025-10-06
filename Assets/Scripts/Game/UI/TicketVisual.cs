@@ -81,6 +81,7 @@ public class TicketVisual : MonoBehaviour
     {
         if (data is object[] parameters && parameters.Length >= 2)
         {
+            Debug.Log(errorHighlightPrefab);
             TicketValidator.HighlightType highlightType = (TicketValidator.HighlightType)parameters[0];
             string reason = (string)parameters[1];
             
@@ -253,10 +254,13 @@ public class TicketVisual : MonoBehaviour
         {
             ticketBg.enabled = true;
         }
+
+        if (stub) stub.enabled = true;
         if (mainTicketImage != null)
         {
             mainTicketImage.enabled = false;
         }
+
         if (stubImage != null)
         {
             stubImage.enabled = false;
@@ -269,6 +273,11 @@ public class TicketVisual : MonoBehaviour
         if (ticketBg != null)
         {
             ticketBg.enabled = false;
+        }
+
+        if (stub != null)
+        {
+            stub.enabled = false;
         }
         
         // 设置主票图片
@@ -518,10 +527,19 @@ public class TicketVisual : MonoBehaviour
     {
         Vector3 targetPos = new Vector3(defaultStubPos.x - 100, defaultStubPos.y - 200f, defaultStubPos.z);
         float duration = 1f;
-        
-        stub.transform.DOLocalMove(targetPos, duration)
-            .SetEase(Ease.InOutQuad)
-            .SetUpdate(true);
+
+        if (stub.enabled)
+        {
+            stub.transform.DOLocalMove(targetPos, duration)
+                .SetEase(Ease.InOutQuad)
+                .SetUpdate(true);
+        }
+        else
+        {
+            stubImage.transform.DOLocalMove(targetPos, duration)
+                .SetEase(Ease.InOutQuad)
+                .SetUpdate(true);
+        }
 
         yield return new WaitForSeconds(duration);
     }

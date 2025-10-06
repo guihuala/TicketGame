@@ -12,6 +12,8 @@ public class GameOverPanel : BasePanel
     [SerializeField] private Button nextButton;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button backButton;
+    [SerializeField] private Button shopBtn;
+    
 
     private EconomyManager economyManager;
     private TicketGenerator ticketGenerator;
@@ -36,6 +38,7 @@ public class GameOverPanel : BasePanel
         nextButton.onClick.AddListener(OnNextButtonClicked);
         restartButton.onClick.AddListener(OnRestartButtonClicked);
         backButton.onClick.AddListener(OnBackButtonClicked);
+        shopBtn.onClick.AddListener(OnShopButtonClicked);
 
         // 初始隐藏所有星星
         InitializeStars();
@@ -223,6 +226,11 @@ public class GameOverPanel : BasePanel
     private void OnBackButtonClicked()
     {
         GameManager.Instance.ReturnToMainMenu();
+    }
+
+    private void OnShopButtonClicked()
+    {
+        UIManager.Instance.OpenPanel("ShopPanel");
     }
 
     /// <summary>

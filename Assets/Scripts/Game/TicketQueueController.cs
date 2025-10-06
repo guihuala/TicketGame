@@ -219,10 +219,12 @@ public class TicketQueueController : MonoBehaviour
         showActive = true;
 
         MsgCenter.SendMsg(MsgConst.MSG_SHOW_START, show.filmTitle, show.startTime);
-
+        
         // 显示场次开始提示
         string showHint = $"Scene {showIndex + 1}\n{show.filmTitle}\nStarts at {show.startTime}";
         MsgCenter.SendMsg(MsgConst.MSG_SHOW_HINT, showHint, 2.5f);
+        
+        AudioManager.Instance.PlaySfx("show");
 
         // 使用关卡配置的初始延迟
         Invoke(nameof(NextTicket), currentDay.initialTicketDelay);
@@ -362,8 +364,6 @@ public class TicketQueueController : MonoBehaviour
     {
         return processedAudienceCount;
     }
-
-    // 在 TicketQueueController.cs 中添加以下方法：
 
     /// <summary>
     /// 使用UV Light验证当前票的真伪

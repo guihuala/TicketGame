@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6063c4d8d6a444808ba2001f03d35b90, type: 3}
   m_Name: Level_2
   m_EditorClassIdentifier: 
-  levelName: 05/10/25
-  levelDate: 05/10/25
+  levelName: 10/05/25
+  levelDate: 10/05/25
   levelStartTime: 09:40
   shows:
   - filmTitle: The Faults in Our Starbucks
@@ -51,8 +51,8 @@ MonoBehaviour:
       targetFilmTitle: 
       targetShowTime: 
       targetShowDate: 
-      mainTicketImage: {fileID: 21300000, guid: 6795c93288c3041ba9e73b75a3992a0a, type: 3}
-      stubImage: {fileID: 21300000, guid: a35185a54dcd542b9b79efae30e2c1a3, type: 3}
+      mainTicketImage: {fileID: 21300000, guid: 4ae3dc1e6d7d840b0b8d172d0ffd9d95, type: 3}
+      stubImage: {fileID: 21300000, guid: 030d21d3c4163494c9d6531a5f0cc97b, type: 3}
   - filmTitle: Cat-anic
     startTime: 17:20
     audienceCount: 5
@@ -67,8 +67,8 @@ MonoBehaviour:
       targetFilmTitle: 
       targetShowTime: 
       targetShowDate: 
-      mainTicketImage: {fileID: 21300000, guid: f00a538c4a4f64a9aa9db36001552af3, type: 3}
-      stubImage: {fileID: 21300000, guid: 475c46313be654c38aa9fc0c9008ff8c, type: 3}
+      mainTicketImage: {fileID: 21300000, guid: f4bb562bbcacb4eb4927c63815afd929, type: 3}
+      stubImage: {fileID: 21300000, guid: 5816891d24aaa43cd88479b1c3646053, type: 3}
   - filmTitle: The Whale of Wall Street
     startTime: 17:35
     audienceCount: 3
@@ -80,6 +80,6 @@ MonoBehaviour:
   ticketSlideInDuration: 0.5
   ticketSlideOutDuration: 0.5
   initialTicketDelay: 1
-  star1Income: 20
-  star2Income: 50
-  star3Income: 90
+  star1Income: 60
+  star2Income: 100
+  star3Income: 150

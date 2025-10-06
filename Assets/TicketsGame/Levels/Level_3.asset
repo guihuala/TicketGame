@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6063c4d8d6a444808ba2001f03d35b90, type: 3}
   m_Name: Level_3
   m_EditorClassIdentifier: 
-  levelName: 06/10/25
-  levelDate: 06/10/25
+  levelName: 10/06/25
+  levelDate: 10/06/25
   levelStartTime: 09:25
   shows:
   - filmTitle: Avocadar
@@ -62,8 +62,8 @@ MonoBehaviour:
       targetFilmTitle: 
       targetShowTime: 
       targetShowDate: 
-      mainTicketImage: {fileID: 0}
-      stubImage: {fileID: 0}
+      mainTicketImage: {fileID: 21300000, guid: 3bb76341768594c69b8f4fccf1134b73, type: 3}
+      stubImage: {fileID: 21300000, guid: d470364a0ed2b47c7bed24806daa83c4, type: 3}
   - filmTitle: The Whale of Wall Street
     startTime: 12:10
     audienceCount: 4
@@ -78,8 +78,8 @@ MonoBehaviour:
       targetFilmTitle: 
       targetShowTime: 
       targetShowDate: 
-      mainTicketImage: {fileID: 21300000, guid: 63c920e69756f4fe58901f1e3603911f, type: 3}
-      stubImage: {fileID: 21300000, guid: 0f565b094df7440ab8a72df355de1061, type: 3}
+      mainTicketImage: {fileID: 21300000, guid: a6944c5114fea4a30a102633c8b7f856, type: 3}
+      stubImage: {fileID: 21300000, guid: 6f16a031d48e44b53ad52341d6dfa406, type: 3}
   - filmTitle: The Legend of Hei
     startTime: 15:25
     audienceCount: 2
@@ -99,8 +99,8 @@ MonoBehaviour:
       targetFilmTitle: 
       targetShowTime: 
       targetShowDate: 
-      mainTicketImage: {fileID: 21300000, guid: 9ca8a88e8cffc466ba8c4902c9972b0d, type: 3}
-      stubImage: {fileID: 21300000, guid: d4a311fa254e0445d9077d1acefb3da6, type: 3}
+      mainTicketImage: {fileID: 21300000, guid: 24fb857287f9d4844acf793fb6831d16, type: 3}
+      stubImage: {fileID: 21300000, guid: 4b5ae226f86cf48b5a92052073cbd9b1, type: 3}
   - filmTitle: Coco Nuts
     startTime: 16:00
     audienceCount: 4
@@ -115,7 +115,7 @@ MonoBehaviour:
       targetFilmTitle: 
       targetShowTime: 
       targetShowDate: 
-      mainTicketImage: {fileID: 21300000, guid: 929aa931031774a9b9608cb729f1a14b, type: 3}
+      mainTicketImage: {fileID: 21300000, guid: 280425264f4c646e2ac1b062ae89cbc2, type: 3}
       stubImage: {fileID: 0}
   - filmTitle: The Fast and Curious
     startTime: 18:25
@@ -131,14 +131,14 @@ MonoBehaviour:
       targetFilmTitle: 
       targetShowTime: 
       targetShowDate: 
-      mainTicketImage: {fileID: 21300000, guid: 526033c123af14e99a089d2b8f50d344, type: 3}
-      stubImage: {fileID: 21300000, guid: bd6b9778b540b4d1b9ab2c909c5a589b, type: 3}
+      mainTicketImage: {fileID: 21300000, guid: b7ec975d65ee5471eae9d28faf43355f, type: 3}
+      stubImage: {fileID: 21300000, guid: 3a236f4c8da994dceb3f43cdfb7bcfa2, type: 3}
   timeScale: 1
   timeBetweenShows: 2
   timeBetweenTickets: 0.5
   ticketSlideInDuration: 0.5
   ticketSlideOutDuration: 0.5
   initialTicketDelay: 1
-  star1Income: 20
-  star2Income: 50
-  star3Income: 90
+  star1Income: 80
+  star2Income: 150
+  star3Income: 200
