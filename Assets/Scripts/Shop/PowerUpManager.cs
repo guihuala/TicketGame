@@ -146,12 +146,45 @@ public class PowerUpManager : Singleton<PowerUpManager>
             Debug.LogWarning("[BroadcastSystem] 找不到时钟系统");
             return false;
         }
-        
+    
         AudioManager.Instance.PlaySfx("Broadcast");
         scheduleClock.simSeconds -= 900f; // 时间倒退15分钟
-        MsgCenter.SendMsg(MsgConst.MSG_BROADCAST_DELAY, 15);
+    
+        // 发送广播系统使用消息，包含下一场电影信息
+        string nextFilmTitle = GetNextFilmTitle();
+        MsgCenter.SendMsg(MsgConst.MSG_BROADCAST_DELAY, 15, nextFilmTitle);
+    
         Debug.Log("[BroadcastSystem] 使用广播系统，电影延迟15分钟开场");
         return true;
+    }
+
+    /// <summary>
+    /// 获取下一场电影的标题
+    /// </summary>
+    private string GetNextFilmTitle()
+    {
+        // 通过TicketQueueController获取下一场电影信息
+        if (ticketQueue != null)
+        {
+            var ticketQueueType = ticketQueue.GetType();
+            var currentDayField = ticketQueueType.GetField("currentDay", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            var showIndexField = ticketQueueType.GetField("showIndex", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        
+            if (currentDayField != null && showIndexField != null)
+            {
+                var currentDay = currentDayField.GetValue(ticketQueue) as DaySchedule;
+                var showIndex = (int)showIndexField.GetValue(ticketQueue);
+            
+                if (currentDay != null && showIndex < currentDay.shows.Count)
+                {
+                    return currentDay.shows[showIndex].filmTitle;
+                }
+            }
+        }
+    
+        return "Next Film";
     }
     
     // 获取道具数量
