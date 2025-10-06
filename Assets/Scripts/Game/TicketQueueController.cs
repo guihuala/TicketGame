@@ -27,7 +27,6 @@ public class TicketQueueController : MonoBehaviour
     private int totalAudienceCount = 0;
     private int processedAudienceCount = 0;
     
-    // 新增：防止重复判断的标志
     private bool isProcessingTicket = false;
 
     void Start()

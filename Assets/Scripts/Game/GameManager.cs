@@ -115,15 +115,32 @@ public class GameManager : Singleton<GameManager>
         CalculateAndSaveStars();
     }
     
-    // 修改重启关卡逻辑，不保存星星
+    /// <summary>
+    /// 重新开始当前关卡
+    /// </summary>
     public void RestartCurrentLevel()
     {
         SetGameState(GameState.Playing);
+        LoadLevel(selectedLevelIndex);
+    }
+
+    /// <summary>
+    /// 加载指定关卡
+    /// </summary>
+    /// <param name="levelIndex">关卡索引</param>
+    public void LoadLevel(int levelIndex)
+    {
+        SetGameState(GameState.Playing);
+        Debug.Log($"[GameManager] 加载关卡: {levelIndex}");
         
-        PlayerPrefs.SetInt("SelectedLevelIndex", selectedLevelIndex);
+        // 更新当前选中的关卡索引
+        selectedLevelIndex = levelIndex;
+        
+        // 保存到PlayerPrefs
+        PlayerPrefs.SetInt("SelectedLevelIndex", levelIndex);
         PlayerPrefs.Save();
         
-        // 重新加载当前游戏场景
+        // 重新加载游戏场景
         SceneLoader.Instance.ReloadCurrentScene();
     }
 

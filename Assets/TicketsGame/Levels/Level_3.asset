@@ -12,34 +12,133 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6063c4d8d6a444808ba2001f03d35b90, type: 3}
   m_Name: Level_3
   m_EditorClassIdentifier: 
+  levelName: 06/10/25
+  levelDate: 06/10/25
+  levelStartTime: 08:00
   shows:
+  - filmTitle: Avocadar
+    startTime: 09:45
+    audienceCount: 3
+    ticketPrice: 15
+    specialEvents:
+    - type: 1
+      count: 1
+      customFilmTitle: Turning Green
+      customShowTime: 10:05
+      customShowDate: 06/10/25
+      shouldAccept: 0
+      targetFilmTitle: Turning Green
+      targetShowTime: 10:05
+      targetShowDate: 06/10/25
+      mainTicketImage: {fileID: 0}
+      stubImage: {fileID: 0}
+  - filmTitle: Turning Green
+    startTime: 10:05
+    audienceCount: 2
+    ticketPrice: 10
+    specialEvents:
+    - type: 6
+      count: 1
+      customFilmTitle: Turnlng Green
+      customShowTime: 
+      customShowDate: 
+      shouldAccept: 0
+      targetFilmTitle: 
+      targetShowTime: 
+      targetShowDate: 
+      mainTicketImage: {fileID: 0}
+      stubImage: {fileID: 0}
   - filmTitle: La La Lamb
-    startTime: 10:00
-    audienceCount: 7
-    special_Early: 2
-    special_OldTicket: 0
-    special_Copy: 0
-    special_Drawn: 0
-    special_Electronic: 0
-    special_Damaged: 0
-  - filmTitle: La La Lamb
-    startTime: 13:00
+    startTime: 12:00
+    audienceCount: 4
+    ticketPrice: 12
+    specialEvents:
+    - type: 2
+      count: 1
+      customFilmTitle: 
+      customShowTime: 13:55
+      customShowDate: 05/10/25
+      shouldAccept: 0
+      targetFilmTitle: 
+      targetShowTime: 
+      targetShowDate: 
+      mainTicketImage: {fileID: 0}
+      stubImage: {fileID: 0}
+  - filmTitle: The Whale of Wall Street
+    startTime: 12:10
+    audienceCount: 4
+    ticketPrice: 12
+    specialEvents:
+    - type: 5
+      count: 1
+      customFilmTitle: 
+      customShowTime: 
+      customShowDate: 
+      shouldAccept: 1
+      targetFilmTitle: 
+      targetShowTime: 
+      targetShowDate: 
+      mainTicketImage: {fileID: 21300000, guid: 63c920e69756f4fe58901f1e3603911f, type: 3}
+      stubImage: {fileID: 21300000, guid: 0f565b094df7440ab8a72df355de1061, type: 3}
+  - filmTitle: The Legend of Hei
+    startTime: 15:25
+    audienceCount: 2
+    ticketPrice: 10
+    specialEvents: []
+  - filmTitle: Avocadar
+    startTime: 15:40
     audienceCount: 5
-    special_Early: 1
-    special_OldTicket: 0
-    special_Copy: 0
-    special_Drawn: 0
-    special_Electronic: 0
-    special_Damaged: 0
-  - filmTitle: La La Lamb
-    startTime: 15:00
-    audienceCount: 7
-    special_Early: 2
-    special_OldTicket: 0
-    special_Copy: 0
-    special_Drawn: 0
-    special_Electronic: 0
-    special_Damaged: 0
+    ticketPrice: 15
+    specialEvents:
+    - type: 2
+      count: 1
+      customFilmTitle: 
+      customShowTime: 09:45
+      customShowDate: 
+      shouldAccept: 0
+      targetFilmTitle: 
+      targetShowTime: 
+      targetShowDate: 
+      mainTicketImage: {fileID: 21300000, guid: 9ca8a88e8cffc466ba8c4902c9972b0d, type: 3}
+      stubImage: {fileID: 21300000, guid: d4a311fa254e0445d9077d1acefb3da6, type: 3}
+  - filmTitle: Coco Nuts
+    startTime: 16:00
+    audienceCount: 4
+    ticketPrice: 12
+    specialEvents:
+    - type: 7
+      count: 1
+      customFilmTitle: 
+      customShowTime: 
+      customShowDate: 
+      shouldAccept: 0
+      targetFilmTitle: 
+      targetShowTime: 
+      targetShowDate: 
+      mainTicketImage: {fileID: 21300000, guid: 929aa931031774a9b9608cb729f1a14b, type: 3}
+      stubImage: {fileID: 0}
+  - filmTitle: The Fast and Curious
+    startTime: 18:25
+    audienceCount: 5
+    ticketPrice: 15
+    specialEvents:
+    - type: 4
+      count: 1
+      customFilmTitle: 
+      customShowTime: 
+      customShowDate: 
+      shouldAccept: 0
+      targetFilmTitle: 
+      targetShowTime: 
+      targetShowDate: 
+      mainTicketImage: {fileID: 21300000, guid: 526033c123af14e99a089d2b8f50d344, type: 3}
+      stubImage: {fileID: 21300000, guid: bd6b9778b540b4d1b9ab2c909c5a589b, type: 3}
+  timeScale: 1
+  timeBetweenShows: 2
+  timeBetweenTickets: 0.5
+  ticketSlideInDuration: 0.5
+  ticketSlideOutDuration: 0.5
+  initialTicketDelay: 1
   star1Income: 20
   star2Income: 50
   star3Income: 90

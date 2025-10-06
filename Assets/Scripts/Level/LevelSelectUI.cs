@@ -76,8 +76,7 @@ public class LevelSelectUI : MonoBehaviour
             Debug.LogWarning($"尝试选择未解锁的关卡: {levelIndex}");
             return;
         }
-
-        Debug.Log("Level selected: " + levelIndex);
+        
         PlayerPrefs.SetInt("SelectedLevelIndex", levelIndex);
         SceneLoader.Instance.LoadScene(GameScene.Gameplay);
     }

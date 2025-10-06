@@ -11,13 +11,52 @@ public class DayScheduleEditor : Editor
     private bool showBasicInfo = true;
     private bool showTimeSettings = true;
     private bool showShows = true;
+    
+    // 添加开关控制是否使用自定义编辑器
+    private bool useCustomEditor = true;
 
     private void OnEnable()
     {
         schedule = (DaySchedule)target;
+        
+        // 从EditorPrefs加载用户偏好设置
+        useCustomEditor = EditorPrefs.GetBool($"DaySchedule_UseCustomEditor_{schedule.GetInstanceID()}", true);
     }
 
     public override void OnInspectorGUI()
+    {
+        // 显示编辑器模式切换开关
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("编辑器模式", EditorStyles.boldLabel);
+        
+        bool previousUseCustomEditor = useCustomEditor;
+        useCustomEditor = EditorGUILayout.Toggle("使用自定义编辑器", useCustomEditor);
+        
+        // 如果开关状态改变，保存到EditorPrefs
+        if (useCustomEditor != previousUseCustomEditor)
+        {
+            EditorPrefs.SetBool($"DaySchedule_UseCustomEditor_{schedule.GetInstanceID()}", useCustomEditor);
+        }
+        
+        EditorGUILayout.HelpBox(useCustomEditor ? 
+            "使用自定义可视化编辑器" : 
+            "使用默认Unity Inspector", MessageType.Info);
+        EditorGUILayout.EndVertical();
+        
+        EditorGUILayout.Space();
+
+        // 根据开关决定使用哪种编辑器
+        if (useCustomEditor)
+        {
+            DrawCustomEditor();
+        }
+        else
+        {
+            DrawDefaultInspector();
+        }
+    }
+    
+    private void DrawCustomEditor()
     {
         serializedObject.Update();
 

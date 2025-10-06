@@ -210,7 +210,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   loadingCanvas: {fileID: 4162312185936622066}
   fadeDuration: 0.5
-  minLoadingTime: 5
+  minLoadingTime: 2
 --- !u!1 &953705855528707981
 GameObject:
   m_ObjectHideFlags: 0

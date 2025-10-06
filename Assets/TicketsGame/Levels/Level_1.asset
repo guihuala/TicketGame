@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6063c4d8d6a444808ba2001f03d35b90, type: 3}
   m_Name: Level_1
   m_EditorClassIdentifier: 
-  levelStartTime: 10:00
+  levelName: 04/10/25
+  levelDate: 04/10/25
+  levelStartTime: 09:40
   shows:
   - filmTitle: La La Lamb
     startTime: 10:00
@@ -21,29 +23,37 @@ MonoBehaviour:
     specialEvents:
     - type: 1
       count: 1
-      customFilmTitle: 
-      customShowTime: 
+      customFilmTitle: The Fast and Curious
+      customShowTime: 15:00
+      customShowDate: 
       shouldAccept: 0
       targetFilmTitle: The Fast and Curious
       targetShowTime: 15:00
+      targetShowDate: 
+      mainTicketImage: {fileID: 0}
+      stubImage: {fileID: 0}
   - filmTitle: The Fast and Curious
-    startTime: 11:00
+    startTime: 15:00
     audienceCount: 3
     ticketPrice: 15
     specialEvents:
     - type: 2
       count: 1
       customFilmTitle: 
-      customShowTime: 04/10/24 15:00
+      customShowTime: 15:00
+      customShowDate: 04/10/24
       shouldAccept: 0
       targetFilmTitle: 
       targetShowTime: 
+      targetShowDate: 
+      mainTicketImage: {fileID: 0}
+      stubImage: {fileID: 0}
   timeScale: 1
-  timeBetweenShows: 2
-  timeBetweenTickets: 0.5
+  timeBetweenShows: 4
+  timeBetweenTickets: 1
   ticketSlideInDuration: 0.5
   ticketSlideOutDuration: 0.5
-  initialTicketDelay: 1
+  initialTicketDelay: 2
   star1Income: 20
   star2Income: 30
   star3Income: 40

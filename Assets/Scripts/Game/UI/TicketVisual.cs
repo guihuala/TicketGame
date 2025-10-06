@@ -284,8 +284,6 @@ public class TicketVisual : MonoBehaviour
                 }
             }
         }
-
-        Debug.Log($"未找到特殊事件 {eventType} 的图片配置");
         return null;
     }
 

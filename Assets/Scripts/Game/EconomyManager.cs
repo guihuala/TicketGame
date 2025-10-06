@@ -21,8 +21,6 @@ public class EconomyManager : MonoBehaviour
         currentIncome = Mathf.Max(0, newIncome);
         
         MsgCenter.SendMsg(MsgConst.MSG_INCOME_CHANGED, currentIncome, r);
-        
-        Debug.Log($"[EconomyManager] 收入变化: {r.incomeDelta}, 当前收入: {currentIncome}");
     }
 
     public int GetStarRating()

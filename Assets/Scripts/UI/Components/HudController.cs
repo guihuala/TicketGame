@@ -5,16 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [System.Serializable]
-public class MovieShowInfo
-{
-    public string filmTitle;
-    public string showTime;
-    public string posterPath; // 海报路径
-    public bool isActive; // 是否正在放映或即将放映
-    public bool hasEnded; // 是否已结束
-}
-
-[System.Serializable]
 public class ShowSlot
 {
     public GameObject slotContainer; // 整个场次槽位的容器
@@ -45,6 +35,8 @@ public class HudController : MonoBehaviour
     private List<DaySchedule.Show> activeShows = new List<DaySchedule.Show>();
     private List<DaySchedule.Show> endedShows = new List<DaySchedule.Show>();
     private Queue<DaySchedule.Show> pendingShows = new Queue<DaySchedule.Show>();
+    
+    private string currentLevelDate; // 存储当前关卡日期
 
     private void Awake()
     {
@@ -63,8 +55,15 @@ public class HudController : MonoBehaviour
 
     private void Start()
     {
+        // 获取当前关卡日期
+        UpdateCurrentLevelDate();
+        
         // 获取所有场次信息
         InitializeShows();
+        
+        // 注册消息监听
+        MsgCenter.RegisterMsg(MsgConst.MSG_SHOW_END, OnShowEnded);
+        MsgCenter.RegisterMsg(MsgConst.MSG_SHOW_START, OnShowStarted);
         
         // 开始监听场次事件
         StartCoroutine(MonitorShows());
@@ -72,14 +71,66 @@ public class HudController : MonoBehaviour
 
     private void Update()
     {
-        // 更新 HUD 上的金钱信息
         UpdateMoneyDisplay();
-        
-        // 更新 HUD 上的时间信息
-        UpdateTimeDisplay();
-        
-        // 更新观影人数显示（新增）
         UpdateAudienceCountDisplay();
+        UpdateTimeDisplay();
+    }
+
+    private void OnDestroy()
+    {
+        // 注销消息监听
+        MsgCenter.UnregisterMsg(MsgConst.MSG_SHOW_END, OnShowEnded);
+        MsgCenter.UnregisterMsg(MsgConst.MSG_SHOW_START, OnShowStarted);
+    }
+
+    /// <summary>
+    /// 更新当前关卡日期
+    /// </summary>
+    private void UpdateCurrentLevelDate()
+    {
+        DaySchedule currentDay = ticketGenerator.GetCurrentDay();
+        if (currentDay != null)
+        {
+            currentLevelDate = currentDay.levelDate;
+            Debug.Log($"[HudController] 当前关卡日期: {currentLevelDate}");
+        }
+        else
+        {
+            currentLevelDate = "04/10/25"; // 默认日期
+            Debug.LogWarning($"[HudController] 无法获取关卡日期，使用默认值: {currentLevelDate}");
+        }
+    }
+
+    /// <summary>
+    /// 处理场次结束事件
+    /// </summary>
+    private void OnShowEnded(params object[] parameters)
+    {
+        if (parameters.Length > 0 && parameters[0] is bool onTime)
+        {
+            Debug.Log($"[HudController] 场次结束，是否按时完成: {onTime}");
+            
+            // 立即更新场次显示
+            UpdateActiveShows();
+            UpdateShowDisplay();
+        }
+    }
+
+    /// <summary>
+    /// 处理场次开始事件
+    /// </summary>
+    private void OnShowStarted(params object[] parameters)
+    {
+        if (parameters.Length >= 2)
+        {
+            string filmTitle = parameters[0] as string;
+            string startTime = parameters[1] as string;
+            Debug.Log($"[HudController] 场次开始: {filmTitle} {startTime}");
+            
+            // 立即更新场次显示
+            UpdateActiveShows();
+            UpdateShowDisplay();
+        }
     }
 
     private void InitializeShowSlots()
@@ -109,9 +160,13 @@ public class HudController : MonoBehaviour
             {
                 pendingShows.Enqueue(show);
             }
-            
+
             activeShows.Clear();
             endedShows.Clear();
+        }
+        else
+        {
+            Debug.LogError("[HudController] 无法获取当前关卡数据");
         }
     }
 
@@ -128,43 +183,59 @@ public class HudController : MonoBehaviour
     private void UpdateActiveShows()
     {
         string currentTime = scheduleClock.GetCurrentGameTime();
-        
-        // 检查是否有新的场次可以激活
-        while (pendingShows.Count > 0 && activeShows.Count < 3)
+
+        // 清空当前活跃场次，重新计算接下来60分钟内的场次
+        activeShows.Clear();
+
+        // 检查所有待处理场次，找出接下来60分钟内的场次
+        var tempPendingShows = new Queue<DaySchedule.Show>(pendingShows);
+        var showsToActivate = new List<DaySchedule.Show>();
+
+        while (tempPendingShows.Count > 0 && activeShows.Count + showsToActivate.Count < 3)
         {
-            var nextShow = pendingShows.Peek();
-            
-            // 如果当前时间已经达到或超过场次开始时间，激活该场次
-            if (string.Compare(currentTime, nextShow.startTime) >= 0)
+            var nextShow = tempPendingShows.Dequeue();
+
+            // 计算当前时间与场次开始时间的时间差（分钟）
+            DateTime current = DateTime.ParseExact(currentTime, "HH:mm", null);
+            DateTime showTime = DateTime.ParseExact(nextShow.startTime, "HH:mm", null);
+
+            // 如果场次在当前时间之后60分钟内，则激活显示
+            if (showTime >= current && (showTime - current).TotalMinutes <= 60)
             {
-                activeShows.Add(pendingShows.Dequeue());
+                showsToActivate.Add(nextShow);
             }
-            else
+            else if ((showTime - current).TotalMinutes > 60)
             {
-                break; // 时间未到，等待
+                // 超过60分钟的场次，停止检查
+                break;
             }
         }
-        
-        // 检查已激活的场次是否结束
+
+        // 将符合条件的场次添加到活跃列表
+        foreach (var show in showsToActivate)
+        {
+            activeShows.Add(show);
+        }
+
+        // 检查已激活的场次是否已经结束（开始后2小时）
         for (int i = activeShows.Count - 1; i >= 0; i--)
         {
             var show = activeShows[i];
-            
+
             DateTime showTime = DateTime.ParseExact(show.startTime, "HH:mm", null);
             DateTime current = DateTime.ParseExact(currentTime, "HH:mm", null);
-            
+
             DateTime endTime = showTime.AddHours(2);
-            
-            if (current >= endTime && !endedShows.Contains(show))
+
+            if (current >= endTime)
             {
-                endedShows.Add(show);
-                activeShows.RemoveAt(i);
-                
-                // 如果有待处理的场次，立即激活一个
-                if (pendingShows.Count > 0 && activeShows.Count < 3)
+                // 从活跃列表中移除已结束的场次
+                if (!endedShows.Contains(show))
                 {
-                    activeShows.Add(pendingShows.Dequeue());
+                    endedShows.Add(show);
                 }
+
+                activeShows.RemoveAt(i);
             }
         }
     }
@@ -190,6 +261,12 @@ public class HudController : MonoBehaviour
                 UpdateShowSlot(slot, show);
             }
         }
+        
+        // 如果没有活跃场次，显示提示或隐藏所有
+        if (activeShows.Count == 0 && pendingShows.Count == 0)
+        {
+            Debug.Log("[HudController] 所有场次已结束");
+        }
     }
 
     private void UpdateShowSlot(ShowSlot slot, DaySchedule.Show show)
@@ -202,11 +279,10 @@ public class HudController : MonoBehaviour
         if (slot.timeText != null)
             slot.timeText.text = show.startTime;
         
-        // 更新日期（可选，可以使用当前游戏日期）
+        // 更新日期 - 使用关卡配置的日期
         if (slot.dateText != null)
         {
-            // 这里可以根据你的游戏时间系统显示具体日期
-            slot.dateText.text = GetGameDate();
+            slot.dateText.text = FormatLevelDate(currentLevelDate);
         }
         
         // 加载并显示海报
@@ -233,11 +309,45 @@ public class HudController : MonoBehaviour
         }
     }
 
-    private string GetGameDate()
+    /// <summary>
+    /// 格式化关卡日期显示
+    /// 例如：04/10/25 → April 10, 2025
+    /// </summary>
+    private string FormatLevelDate(string date)
     {
-        // 这里可以根据你的游戏时间系统返回当前日期
-        // 例如：return System.DateTime.Now.ToString("MM/dd");
-        return "Today";
+        if (string.IsNullOrEmpty(date))
+            return "Today";
+            
+        try
+        {
+            string[] parts = date.Split('/');
+            if (parts.Length == 3)
+            {
+                string month = parts[0];
+                string day = parts[1];
+                string year = "20" + parts[2]; // 假设是20xx年
+                
+                // 月份映射
+                Dictionary<string, string> monthNames = new Dictionary<string, string>
+                {
+                    { "01", "January" }, { "02", "February" }, { "03", "March" },
+                    { "04", "April" }, { "05", "May" }, { "06", "June" },
+                    { "07", "July" }, { "08", "August" }, { "09", "September" },
+                    { "10", "October" }, { "11", "November" }, { "12", "December" }
+                };
+                
+                if (monthNames.ContainsKey(month))
+                {
+                    return $"{monthNames[month]} {int.Parse(day)}, {year}";
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"日期格式化错误: {date}, 错误: {e.Message}");
+        }
+        
+        return date; // 如果格式化失败，返回原始日期
     }
 
     private void UpdateMoneyDisplay()

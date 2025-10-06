@@ -51,14 +51,14 @@ MonoBehaviour:
       targetFilmTitle: 
       targetShowTime: 
       targetShowDate: 
-      mainTicketImage: {fileID: 21300000, guid: 526033c123af14e99a089d2b8f50d344, type: 3}
-      stubImage: {fileID: 21300000, guid: bd6b9778b540b4d1b9ab2c909c5a589b, type: 3}
+      mainTicketImage: {fileID: 21300000, guid: 6795c93288c3041ba9e73b75a3992a0a, type: 3}
+      stubImage: {fileID: 21300000, guid: a35185a54dcd542b9b79efae30e2c1a3, type: 3}
   - filmTitle: Cat-anic
     startTime: 17:20
     audienceCount: 5
     ticketPrice: 15
     specialEvents:
-    - type: 0
+    - type: 5
       count: 1
       customFilmTitle: 
       customShowTime: 

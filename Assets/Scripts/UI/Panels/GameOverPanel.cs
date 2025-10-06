@@ -126,7 +126,7 @@ public class GameOverPanel : BasePanel
             // 如果不是最后一颗星，等待1秒显示下一颗星
             if (i < starCount - 1)
             {
-                yield return new WaitForSecondsRealtime(1f);
+                yield return new WaitForSecondsRealtime(.5f);
             }
         }
         
@@ -233,6 +233,7 @@ public class GameOverPanel : BasePanel
     {
         // 切换到下一关
         int nextLevelIndex = currentLevelIndex + 1;
+        Debug.Log($"{nextLevelIndex}");
         if (IsNextLevelAvailable())
         {
             LoadLevel(nextLevelIndex);
@@ -260,12 +261,7 @@ public class GameOverPanel : BasePanel
     {
         Debug.Log($"[GameOverPanel] 加载关卡: {levelIndex}");
         
-        // 保存选中的关卡索引
-        PlayerPrefs.SetInt("SelectedLevelIndex", levelIndex);
-        PlayerPrefs.Save();
-        
-        // 重新加载游戏场景
-        GameManager.Instance.RestartCurrentLevel();
+        GameManager.Instance.LoadLevel(levelIndex);
     }
 
     // 当面板被禁用时停止所有协程和DOTween动画

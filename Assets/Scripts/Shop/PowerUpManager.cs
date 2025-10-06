@@ -8,6 +8,8 @@ public class PowerUpManager : Singleton<PowerUpManager>
     private TicketQueueController ticketQueue;
     private ScheduleClock scheduleClock;
     
+    public PowerUpUI powerUpUI;
+    
     // 定义道具ID常量
     public const string UV_LIGHT_ID = "uv_light";
     public const string VIP_PASS_ID = "vip_pass";
@@ -44,10 +46,9 @@ public class PowerUpManager : Singleton<PowerUpManager>
     {
         yield return null; // 等待一帧
         
-        PowerUpUI ui = FindObjectOfType<PowerUpUI>();
-        if (ui != null)
+        if (powerUpUI != null)
         {
-            ui.UpdatePowerUpUI();
+            powerUpUI.UpdatePowerUpUI();
         }
         else
         {

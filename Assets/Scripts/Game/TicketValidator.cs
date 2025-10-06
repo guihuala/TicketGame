@@ -112,7 +112,6 @@ public class TicketValidator : MonoBehaviour
         // 1. 检查片名错误（电影没有在本影院放映）
         if (!nameMatch)
         {
-            Debug.Log($"[ValidateReject] 正确拒绝: 片名错误");
             return new CheckResult 
             { 
                 outcome = TicketOutcome.CorrectReject, 
