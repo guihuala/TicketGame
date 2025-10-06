@@ -845,6 +845,7 @@ MonoBehaviour:
   nextButton: {fileID: 3407298634840602919}
   restartButton: {fileID: 7980193480102818749}
   backButton: {fileID: 1684754348369384097}
+  shopBtn: {fileID: 2939084159576099679}
 --- !u!1 &7262499760659536019
 GameObject:
   m_ObjectHideFlags: 0

@@ -99,7 +99,6 @@ public class GameManager : Singleton<GameManager>
                 break;
 
             case GameState.GameOver:
-                TimeManager.Instance.PauseTime();
                 InputController.Instance.EnableInput(false);
                 UIManager.Instance.OpenPanel("GameOverPanel");
                 break;

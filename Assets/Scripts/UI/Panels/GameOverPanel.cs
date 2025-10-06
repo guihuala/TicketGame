@@ -230,6 +230,7 @@ public class GameOverPanel : BasePanel
 
     private void OnShopButtonClicked()
     {
+        GameManager.Instance.SetGameState(GameManager.GameState.Playing);
         UIManager.Instance.OpenPanel("ShopPanel");
     }
 
@@ -242,8 +243,7 @@ public class GameOverPanel : BasePanel
         
         GameManager.Instance.LoadLevel(levelIndex);
     }
-
-    // 当面板被禁用时停止所有协程和DOTween动画
+    
     private void OnDisable()
     {
         StopAllCoroutines();
