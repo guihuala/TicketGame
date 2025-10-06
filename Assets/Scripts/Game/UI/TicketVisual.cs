@@ -31,6 +31,19 @@ public class TicketVisual : MonoBehaviour
     [SerializeField] private int stubNormalFontSize = 18;
     [SerializeField] private int stubEmphasizedFontSize = 22; // 副券强调字母的字号
     
+    [Header("高亮提示设置")]
+    [SerializeField] private GameObject errorHighlightPrefab; // 高亮图标预制件
+    [SerializeField] private float highlightDuration = 2f;    // 高亮显示时长
+    
+    // 高亮目标区域引用
+    [SerializeField] private RectTransform filmTitleHighlightArea;
+    [SerializeField] private RectTransform showTimeHighlightArea;
+    [SerializeField] private RectTransform dateHighlightArea;
+    [SerializeField] private RectTransform stubHighlightArea;
+    [SerializeField] private RectTransform specialHighlightArea;
+
+    private GameObject currentHighlight; // 当前显示的高亮对象
+    
     private Color defaultColor;
     private Vector3 defaultStubPos;
     private string generatedSeatNumber;
@@ -42,10 +55,159 @@ public class TicketVisual : MonoBehaviour
         {
             defaultStubPos = stub.transform.localPosition;
         }
+        
+        // 注册消息监听
+        MsgCenter.RegisterMsg(MsgConst.MSG_TICKET_HIGHLIGHT, OnTicketHighlight);
+        MsgCenter.RegisterMsg(MsgConst.MSG_TICKET_HIGHLIGHT_CLEAR, OnTicketHighlightClear);
+    }
+    
+    void OnDestroy()
+    {
+        // 移除消息监听
+        MsgCenter.UnregisterMsg(MsgConst.MSG_TICKET_HIGHLIGHT, OnTicketHighlight);
+        MsgCenter.UnregisterMsg(MsgConst.MSG_TICKET_HIGHLIGHT_CLEAR, OnTicketHighlightClear);
+        
+        // 清理高亮对象
+        if (currentHighlight != null)
+        {
+            Destroy(currentHighlight);
+        }
+    }
+    
+    /// <summary>
+    /// 处理票证高亮消息
+    /// </summary>
+    private void OnTicketHighlight(System.Object data)
+    {
+        if (data is object[] parameters && parameters.Length >= 2)
+        {
+            TicketValidator.HighlightType highlightType = (TicketValidator.HighlightType)parameters[0];
+            string reason = (string)parameters[1];
+            
+            ShowErrorHighlight(highlightType, reason);
+        }
+    }
+
+    /// <summary>
+    /// 清除高亮
+    /// </summary>
+    private void OnTicketHighlightClear(System.Object data)
+    {
+        ClearErrorHighlight();
+    }
+    
+    private void ShowErrorHighlight(TicketValidator.HighlightType highlightType, string reason)
+    {
+        // 先清除现有的高亮
+        ClearErrorHighlight();
+        
+        RectTransform targetArea = GetHighlightArea(highlightType);
+        if (targetArea != null && errorHighlightPrefab != null)
+        {
+            // 实例化高亮图标
+            currentHighlight = Instantiate(errorHighlightPrefab, transform);
+            RectTransform highlightRect = currentHighlight.GetComponent<RectTransform>();
+            
+            if (highlightRect != null)
+            {
+                // 设置高亮图标的位置和大小
+                highlightRect.SetParent(targetArea, false);
+                highlightRect.anchorMin = new Vector2(0.5f, 0.5f);
+                highlightRect.anchorMax = new Vector2(0.5f, 0.5f);
+                highlightRect.pivot = new Vector2(0.5f, 0.5f);
+                highlightRect.anchoredPosition = Vector2.zero;
+                highlightRect.sizeDelta = new Vector2(40, 40); // 图标大小
+                
+                // 添加动画效果
+                PlayHighlightAnimation(currentHighlight);
+                
+                // 定时自动清除
+                StartCoroutine(AutoClearHighlight());
+                
+                Debug.Log($"显示错误高亮: {highlightType}, 原因: {reason}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// 获取对应的高亮区域
+    /// </summary>
+    private RectTransform GetHighlightArea(TicketValidator.HighlightType highlightType)
+    {
+        switch (highlightType)
+        {
+            case TicketValidator.HighlightType.FilmTitle:
+                return filmTitleHighlightArea;
+            case TicketValidator.HighlightType.ShowTime:
+                return showTimeHighlightArea;
+            case TicketValidator.HighlightType.Date:
+                return dateHighlightArea;
+            case TicketValidator.HighlightType.Stub:
+                return stubHighlightArea;
+            case TicketValidator.HighlightType.Special:
+                return specialHighlightArea;
+            default:
+                return specialHighlightArea;
+        }
+    }
+
+    /// <summary>
+    /// 播放高亮动画
+    /// </summary>
+    private void PlayHighlightAnimation(GameObject highlightObj)
+    {
+        if (highlightObj == null) return;
+        
+        Image highlightImage = highlightObj.GetComponent<Image>();
+        if (highlightImage != null)
+        {
+            // 重置透明度
+            Color color = highlightImage.color;
+            color.a = 1f;
+            highlightImage.color = color;
+            
+            // 缩放动画
+            highlightObj.transform.localScale = Vector3.zero;
+            highlightObj.transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack);
+            
+            // 闪烁动画
+            highlightImage.DOFade(0.3f, 0.5f)
+                .SetLoops(6, LoopType.Yoyo)
+                .SetEase(Ease.InOutSine);
+        }
+    }
+
+    /// <summary>
+    /// 自动清除高亮
+    /// </summary>
+    private IEnumerator AutoClearHighlight()
+    {
+        yield return new WaitForSeconds(highlightDuration);
+        ClearErrorHighlight();
+    }
+
+    /// <summary>
+    /// 清除错误高亮
+    /// </summary>
+    private void ClearErrorHighlight()
+    {
+        if (currentHighlight != null)
+        {
+            // 添加消失动画
+            currentHighlight.transform.DOScale(Vector3.zero, 0.2f)
+                .SetEase(Ease.InBack)
+                .OnComplete(() => {
+                    Destroy(currentHighlight);
+                    currentHighlight = null;
+                });
+        }
     }
 
     public void SetTicket(TicketData t)
     {
+        // 清除可能存在的旧高亮
+        ClearErrorHighlight();
+        
         // 保存当前票数据用于后续查询
         currentTicketData = t;
 
@@ -142,7 +304,7 @@ public class TicketVisual : MonoBehaviour
         }
         if (timeText)
         {
-            timeText.text = $"screen . {t.showTime} . {FormatDateWithEmphasizedMonth(t.showDate, true)}";
+            timeText.text = $"screen . {t.showTime} . {t.showDate}";
             timeText.enabled = true;
         }
         if (seatText) 
@@ -159,7 +321,7 @@ public class TicketVisual : MonoBehaviour
         }
         if (subTimeText) 
         {
-            subTimeText.text = $"screen . {t.showTime} . {FormatDateWithEmphasizedMonth(t.showDate, false)}";
+            subTimeText.text = $"screen . {t.showTime} . {t.showDate}";
             subTimeText.enabled = true;
         }
         if (subSeatText) 
@@ -208,38 +370,6 @@ public class TicketVisual : MonoBehaviour
         }
 
         return formattedTitle.ToString();
-    }
-
-    /// <summary>
-    /// 格式化日期，将月份的首字母字号放大
-    /// </summary>
-    /// <param name="date">原始日期（格式：Month/yy/dd）</param>
-    /// <param name="isMainTicket">是否为主票（true=主票，false=副券）</param>
-    private string FormatDateWithEmphasizedMonth(string date, bool isMainTicket)
-    {
-        if (string.IsNullOrEmpty(date))
-            return date;
-        
-        int emphasizedSize = stubEmphasizedFontSize;
-
-        // 分割日期部分
-        string[] parts = date.Split('/');
-        if (parts.Length == 3)
-        {
-            string month = parts[0];
-            string year = parts[1];
-            string day = parts[2];
-
-            // 只对月份的首字母进行强调
-            if (month.Length > 0)
-            {
-                string emphasizedMonth = $"<size={emphasizedSize}>{month[0]}</size>" + month.Substring(1);
-                return $"{emphasizedMonth}/{year}/{day}";
-            }
-        }
-
-        // 如果格式不正确，返回原始日期
-        return date;
     }
     
     private Sprite GetSpecialEventMainImage(SpecialEventType eventType)

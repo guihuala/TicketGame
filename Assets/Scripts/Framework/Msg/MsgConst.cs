@@ -16,4 +16,6 @@ public class MsgConst
     public const int MSG_USE_UV_LIGHT = 33;
     public const int MSG_USE_VIP_PASS = 34;
     public const int MSG_BROADCAST_DELAY = 35;
+    public const int MSG_TICKET_HIGHLIGHT = 36;
+    public const int MSG_TICKET_HIGHLIGHT_CLEAR = 37; 
 }

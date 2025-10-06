@@ -1170,6 +1170,13 @@ MonoBehaviour:
   mainEmphasizedFontSize: 80
   stubNormalFontSize: 36
   stubEmphasizedFontSize: 48
+  errorHighlightPrefab: {fileID: 5518432913012442628, guid: 5a1d5f496f331440fb8b05146b5ba700, type: 3}
+  highlightDuration: 1
+  filmTitleHighlightArea: {fileID: 5364558419050049540}
+  showTimeHighlightArea: {fileID: 7899548042982277921}
+  dateHighlightArea: {fileID: 7899548042982277921}
+  stubHighlightArea: {fileID: 7982567530347621924}
+  specialHighlightArea: {fileID: 7941623517931734051}
 --- !u!114 &5813135736021120350
 MonoBehaviour:
   m_ObjectHideFlags: 0

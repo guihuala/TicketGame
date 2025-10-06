@@ -13,6 +13,16 @@ public class TicketValidator : MonoBehaviour
         Heavy
     }
     
+    public enum HighlightType
+    {
+        None,
+        FilmTitle,      // 电影标题高亮
+        ShowTime,       // 放映时间高亮
+        Date,           // 日期高亮
+        Stub,           // 票根高亮
+        Special         // 特殊事件高亮
+    }
+    
     private int GetCurrentTicketPrice(TicketData ticket, ScheduleClock clock, DaySchedule currentDay)
     {
         if (currentDay == null) return 1;
@@ -39,7 +49,9 @@ public class TicketValidator : MonoBehaviour
         if (!nameMatch)
         {
             Debug.Log($"[ValidateAccept] 拒绝原因: 片名错误");
-            TriggerCameraShake(ShakeType.Medium); // 添加震动
+            TriggerCameraShake(ShakeType.Medium);
+            // 发送电影标题高亮消息
+            MsgCenter.SendMsg(MsgConst.MSG_TICKET_HIGHLIGHT, HighlightType.FilmTitle, "Film not showing today");
             return new CheckResult
             {
                 outcome = TicketOutcome.WrongAccept, 
@@ -52,7 +64,9 @@ public class TicketValidator : MonoBehaviour
         if (!timeMatch)
         {
             Debug.Log($"[ValidateAccept] 拒绝原因: 时间不匹配");
-            TriggerCameraShake(ShakeType.Medium); // 添加震动
+            TriggerCameraShake(ShakeType.Medium);
+            // 发送放映时间高亮消息
+            MsgCenter.SendMsg(MsgConst.MSG_TICKET_HIGHLIGHT, HighlightType.ShowTime, "Wrong showtime");
             return new CheckResult
             {
                 outcome = TicketOutcome.WrongAccept, 
@@ -65,7 +79,9 @@ public class TicketValidator : MonoBehaviour
         if (tooEarly)
         {
             Debug.Log($"[ValidateAccept] 拒绝原因: 提前检票");
-            TriggerCameraShake(ShakeType.Light); // 添加震动
+            TriggerCameraShake(ShakeType.Light);
+            // 发送放映时间高亮消息
+            MsgCenter.SendMsg(MsgConst.MSG_TICKET_HIGHLIGHT, HighlightType.ShowTime, "Admitted too early");
             return new CheckResult
             { 
                 outcome = TicketOutcome.WrongAccept, 
@@ -79,12 +95,18 @@ public class TicketValidator : MonoBehaviour
         if (!isTicketValid)
         {
             Debug.Log($"[ValidateAccept] 拒绝原因: 无效票类型");
-            TriggerCameraShake(ShakeType.Heavy); // 添加震动
+            TriggerCameraShake(ShakeType.Heavy);
+            
+            // 根据特殊事件类型发送不同的高亮消息
+            HighlightType highlightType = GetHighlightTypeForSpecialEvent(t.special);
+            string reason = GetInvalidTicketReason(t);
+            MsgCenter.SendMsg(MsgConst.MSG_TICKET_HIGHLIGHT, highlightType, reason);
+            
             return new CheckResult
             {
                 outcome = TicketOutcome.WrongAccept, 
                 incomeDelta = -penaltyInvalid, 
-                reason = GetInvalidTicketReason(t)
+                reason = reason
             };
         }
 
@@ -112,6 +134,8 @@ public class TicketValidator : MonoBehaviour
         // 1. 检查片名错误（电影没有在本影院放映）
         if (!nameMatch)
         {
+            // 发送电影标题高亮消息
+            MsgCenter.SendMsg(MsgConst.MSG_TICKET_HIGHLIGHT, HighlightType.FilmTitle, "Film not showing today");
             return new CheckResult 
             { 
                 outcome = TicketOutcome.CorrectReject, 
@@ -124,6 +148,8 @@ public class TicketValidator : MonoBehaviour
         if (!timeMatch)
         {
             Debug.Log($"[ValidateReject] 正确拒绝: 时间不匹配");
+            // 发送放映时间高亮消息
+            MsgCenter.SendMsg(MsgConst.MSG_TICKET_HIGHLIGHT, HighlightType.ShowTime, "Wrong showtime");
             return new CheckResult 
             { 
                 outcome = TicketOutcome.CorrectReject, 
@@ -136,6 +162,8 @@ public class TicketValidator : MonoBehaviour
         if (tooEarly)
         {
             Debug.Log($"[ValidateReject] 正确拒绝: 提前检票");
+            // 发送放映时间高亮消息
+            MsgCenter.SendMsg(MsgConst.MSG_TICKET_HIGHLIGHT, HighlightType.ShowTime, "Too early");
             return new CheckResult 
             { 
                 outcome = TicketOutcome.CorrectReject, 
@@ -149,23 +177,60 @@ public class TicketValidator : MonoBehaviour
         if (!isTicketValid)
         {
             Debug.Log($"[ValidateReject] 正确拒绝: 无效票类型");
+            
+            // 根据特殊事件类型发送不同的高亮消息
+            HighlightType highlightType = GetHighlightTypeForSpecialEvent(t.special);
+            string reason = GetInvalidTicketReason(t);
+            MsgCenter.SendMsg(MsgConst.MSG_TICKET_HIGHLIGHT, highlightType, reason);
+            
             return new CheckResult 
             { 
                 outcome = TicketOutcome.CorrectReject, 
                 incomeDelta = 0, 
-                reason = GetInvalidTicketReason(t)
+                reason = reason
             };
         }
 
         // 如果票是有效的且匹配，但被拒绝了，这是错误的拒绝
         Debug.Log($"[ValidateReject] 错误拒绝: 应该接受的票");
-        TriggerCameraShake(ShakeType.Heavy); // 添加震动
+        TriggerCameraShake(ShakeType.Heavy);
         return new CheckResult
         { 
             outcome = TicketOutcome.WrongReject, 
             incomeDelta = 0, 
             reason = "Should have admitted" 
         };
+    }
+
+    /// <summary>
+    /// 根据特殊事件类型获取对应的高亮类型
+    /// </summary>
+    private HighlightType GetHighlightTypeForSpecialEvent(SpecialEventType eventType)
+    {
+        switch (eventType)
+        {
+            case SpecialEventType.EarlyCheck:
+                return HighlightType.ShowTime;
+                
+            case SpecialEventType.OldTicket:
+                return HighlightType.Date;
+                
+            case SpecialEventType.WrongNameSpelling:
+                return HighlightType.FilmTitle;
+                
+            case SpecialEventType.DrawnTicket:
+            case SpecialEventType.CopyTicket:
+                return HighlightType.Special;
+                
+            case SpecialEventType.DamagedTicket:
+                return HighlightType.Special;
+                
+            case SpecialEventType.MissingStub:
+                return HighlightType.Stub;
+                
+            default:
+                return HighlightType.Special;
+        }
     }
 
     /// <summary>

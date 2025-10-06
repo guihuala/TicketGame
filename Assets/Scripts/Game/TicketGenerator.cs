@@ -191,13 +191,12 @@ public class TicketGenerator : MonoBehaviour
     {
         var currentDay = GetCurrentLevel();
         string date = currentDay != null ? currentDay.levelDate : "04/10/25";
-        string formattedDate = FormatDateToEnglish(date);
         
         return new TicketData
         {
             filmTitle = show.filmTitle,
             showTime = show.startTime,
-            showDate = formattedDate, // 使用格式化后的日期
+            showDate = date, // 使用格式化后的日期
             special = SpecialEventType.None,
             hasStub = true,
             isValid = true  // 正常票默认有效
@@ -214,64 +213,18 @@ public class TicketGenerator : MonoBehaviour
         {
             ticketDate = config.customShowDate;
         }
-        
-        // 格式化日期
-        string formattedDate = FormatDateToEnglish(ticketDate);
 
         var ticket = new TicketData
         {
             filmTitle = string.IsNullOrEmpty(config.customFilmTitle) ? show.filmTitle : config.customFilmTitle,
             showTime = string.IsNullOrEmpty(config.customShowTime) ? show.startTime : config.customShowTime,
-            showDate = formattedDate, // 设置格式化后的日期
+            showDate = ticketDate, // 设置格式化后的日期
             special = config.type,
             hasStub = config.type != SpecialEventType.MissingStub, // 缺失票根没有票根
             isValid = config.shouldAccept // 使用配置的是否应该接受
         };
         
         return ticket;
-    }
-
-    /// <summary>
-    /// 将 MM/dd/yy 格式的日期转换为 EnglishMonth/yy/dd 格式
-    /// 例如：04/10/25 → October/25/10
-    /// </summary>
-    private string FormatDateToEnglish(string date)
-    {
-        if (string.IsNullOrEmpty(date))
-            return date;
-            
-        try
-        {
-            // 分割日期部分
-            string[] parts = date.Split('/');
-            if (parts.Length == 3)
-            {
-                string month = parts[0];
-                string day = parts[1];
-                string year = parts[2];
-                
-                // 转换月份
-                if (monthMapping.ContainsKey(month))
-                {
-                    return $"{monthMapping[month]}/{year}/{day}";
-                }
-                else
-                {
-                    Debug.LogWarning($"未知的月份: {month}，使用原始日期");
-                    return date;
-                }
-            }
-            else
-            {
-                Debug.LogWarning($"日期格式不正确: {date}，期望格式: MM/dd/yy");
-                return date;
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"日期转换错误: {date}, 错误: {e.Message}");
-            return date;
-        }
     }
 
     private Queue<TicketData> ShuffleQueue(Queue<TicketData> queue)
