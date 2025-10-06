@@ -1,11 +1,67 @@
+using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class TicketUI : MonoBehaviour
 {
     [SerializeField] private TicketVisual visual;
 
-    private TicketData current;
+    public TicketData current;
     public TicketQueueController queue;
+
+    [Header("UV Light Effects")]
+    [SerializeField] private GameObject uvLightValidEffect;    // 有效票的UV效果
+    [SerializeField] private GameObject uvLightInvalidEffect;  // 无效票的UV效果
+    [SerializeField] private float uvEffectDuration = 2f;      // UV效果持续时间
+
+    private void Start()
+    {
+        uvLightValidEffect.SetActive(false);
+        uvLightInvalidEffect.SetActive(false);
+    }
+
+    public void ShowUVLightEffect(bool isValid)
+    {
+        if (isValid)
+        {
+            ShowValidUVEffect();
+        }
+        else
+        {
+            ShowInvalidUVEffect();
+        }
+    }
+
+    private void ShowValidUVEffect()
+    {
+        if (uvLightValidEffect != null)
+        {
+            uvLightValidEffect.SetActive(true);
+            StartCoroutine(HideUVEffectAfterDelay(uvLightValidEffect));
+        }
+        
+        Debug.Log("[TicketUI] UV Light: 票是真实的 ✓");
+    }
+
+    private void ShowInvalidUVEffect()
+    {
+        if (uvLightInvalidEffect != null)
+        {
+            uvLightInvalidEffect.SetActive(true);
+            StartCoroutine(HideUVEffectAfterDelay(uvLightInvalidEffect));
+        }
+        
+        Debug.Log("[TicketUI] UV Light: 票是假的 ✗");
+    }
+
+    private System.Collections.IEnumerator HideUVEffectAfterDelay(GameObject effect)
+    {
+        yield return new WaitForSeconds(uvEffectDuration);
+        if (effect != null)
+        {
+            effect.SetActive(false);
+        }
+    }
 
     private string[] tearSounds = { "Tear_1", "Tear_2", "Tear_3" };
     

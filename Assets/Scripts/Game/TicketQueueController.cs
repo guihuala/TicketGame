@@ -291,4 +291,61 @@ public class TicketQueueController : MonoBehaviour
     {
         return processedAudienceCount;
     }
+    
+    // 在 TicketQueueController.cs 中添加以下方法：
+
+    /// <summary>
+    /// 使用UV Light验证当前票的真伪
+    /// </summary>
+    public bool ValidateCurrentTicketWithUVLight()
+    {
+        if (currentTicketUI == null || !waitingForPlayerInput) 
+            return false;
+    
+        // 调用验证器检查票是否有效
+        return IsCurrentTicketValid();
+    }
+
+    /// <summary>
+    /// 检查当前票是否有效
+    /// </summary>
+    private bool IsCurrentTicketValid()
+    {
+        if (currentTicket.special == SpecialEventType.None)
+        {
+            // 正常票：有票根且信息正确就有效
+            return currentTicket.hasStub && currentTicket.isValid;
+        }
+    
+        // 根据特殊事件类型判断有效性
+        switch (currentTicket.special)
+        {
+            case SpecialEventType.EarlyCheck:
+            case SpecialEventType.OldTicket:
+            case SpecialEventType.WrongNameSpelling:
+            case SpecialEventType.DrawnTicket:
+            case SpecialEventType.CopyTicket:
+                // 这些类型的票都是无效的
+                return false;
+            
+            case SpecialEventType.DamagedTicket:
+            case SpecialEventType.MissingStub:
+                // 受损票和缺失票根：信息正确但票本身有问题
+                return currentTicket.isValid; // 使用配置的是否应该接受
+            
+            default:
+                return currentTicket.hasStub && currentTicket.isValid;
+        }
+    }
+
+    /// <summary>
+    /// 显示UV Light验证结果
+    /// </summary>
+    public void ShowUVLightResult(bool isValid)
+    {
+        if (currentTicketUI != null)
+        {
+            currentTicketUI.ShowUVLightEffect(isValid);
+        }
+    }
 }

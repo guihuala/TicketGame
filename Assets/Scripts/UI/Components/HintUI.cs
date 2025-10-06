@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -9,13 +10,15 @@ public class HintUI : MonoBehaviour
     [SerializeField] private float fadeDuration = 0.3f;
     [SerializeField] private float defaultDisplayDuration = 2f;
 
+    private void Awake()
+    {
+        MsgCenter.RegisterMsg(MsgConst.MSG_SHOW_HINT, OnShowHint);
+    }
+
     private void Start()
     {
         // 初始隐藏
         hintPanel.alpha = 0f;
-        hintPanel.gameObject.SetActive(false);
-        
-        MsgCenter.RegisterMsg(MsgConst.MSG_SHOW_HINT, OnShowHint);
     }
 
     private void OnDestroy()
@@ -53,13 +56,5 @@ public class HintUI : MonoBehaviour
             .OnComplete(() => {
                 hintPanel.gameObject.SetActive(false);
             });
-    }
-
-    // 立即隐藏提示
-    public void HideHint()
-    {
-        hintPanel.DOKill();
-        hintPanel.alpha = 0f;
-        hintPanel.gameObject.SetActive(false);
     }
 }

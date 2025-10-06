@@ -7,7 +7,6 @@ public enum SpecialEventType
     OldTicket,
     CopyTicket,
     DrawnTicket,
-    ElectronicAbuse,
     DamagedTicket,
     WrongNameSpelling,
     MissingStub 
@@ -18,6 +17,7 @@ public struct TicketData
 {
     public string filmTitle;
     public string showTime;
+    public string showDate;
     public SpecialEventType special;
     public bool hasStub;
     public bool isValid;

@@ -5,22 +5,24 @@ public class TicketGenerator : MonoBehaviour
 {
     [SerializeField] private LevelDatabase database;
     [SerializeField] private int currentLevelIndex = 0;
-
-    // 电影名拼写错误映射表
-    private Dictionary<string, string[]> filmTypos = new Dictionary<string, string[]>
+    
+    // 月份映射表
+    private Dictionary<string, string> monthMapping = new Dictionary<string, string>
     {
-        { "Turning Green", new string[] { "Turnlng Green", "Turnign Green", "Turning Gren" } },
-        { "Avocadar", new string[] { "Avocado", "Avocada", "Avocador" } },
-        { "La La Lamb", new string[] { "La La Land", "La La Lamp", "La Lamb" } },
-        { "The Whale of Wall Street", new string[] { "The Whale on Wall Street", "The Whale Wall Street" } },
-        { "The Legend of Hei", new string[] { "The Legend of He", "Legend of Hei", "The Legnd of Hei" } },
-        { "Coco Nuts", new string[] { "Coconuts", "Coco Nut", "Coco Nuts" } },
-        { "The Fast and Curious", new string[] { "The Fast and the Curious", "Fast and Curious", "The Fast & Curious" } },
-        { "The Faults in Our Starbucks", new string[] { "The FauIts ln Our Starbucks", "A Starbuck is Born", "Faults in Our Starbucks" } },
-        { "Nezha", new string[] { "Ne Zha", "Nezhaa", "Nezha!" } },
-        { "Cat-anic", new string[] { "Catanic", "Cat Anic", "Cat-anic!" } }
+        { "01", "January" },
+        { "02", "February" },
+        { "03", "March" },
+        { "04", "April" },
+        { "05", "May" },
+        { "06", "June" },
+        { "07", "July" },
+        { "08", "August" },
+        { "09", "September" },
+        { "10", "October" },
+        { "11", "November" },
+        { "12", "December" }
     };
-
+    
     public Queue<TicketData> BuildQueueForShow(DaySchedule.Show show)
     {
         var q = new Queue<TicketData>();
@@ -77,10 +79,15 @@ public class TicketGenerator : MonoBehaviour
 
     private TicketData CreateNormalTicket(DaySchedule.Show show)
     {
+        var currentDay = GetCurrentDay();
+        string date = currentDay != null ? currentDay.levelDate : "04/10/25";
+        string formattedDate = FormatDateToEnglish(date);
+        
         return new TicketData
         {
             filmTitle = show.filmTitle,
             showTime = show.startTime,
+            showDate = formattedDate, // 使用格式化后的日期
             special = SpecialEventType.None,
             hasStub = true,
             isValid = true  // 正常票默认有效
@@ -89,75 +96,73 @@ public class TicketGenerator : MonoBehaviour
 
     private TicketData CreateSpecialTicket(DaySchedule.SpecialEventConfig config, DaySchedule.Show show)
     {
+        var currentDay = GetCurrentDay();
+        string ticketDate = currentDay != null ? currentDay.levelDate : "04/10/25";
+        
+        // 如果有自定义日期，使用自定义日期
+        if (!string.IsNullOrEmpty(config.customShowDate))
+        {
+            ticketDate = config.customShowDate;
+        }
+        
+        // 格式化日期
+        string formattedDate = FormatDateToEnglish(ticketDate);
+        
+        Debug.Log($"{config.customFilmTitle} : {config.customShowTime} : {formattedDate}");
         var ticket = new TicketData
         {
             filmTitle = string.IsNullOrEmpty(config.customFilmTitle) ? show.filmTitle : config.customFilmTitle,
             showTime = string.IsNullOrEmpty(config.customShowTime) ? show.startTime : config.customShowTime,
+            showDate = formattedDate, // 设置格式化后的日期
             special = config.type,
             hasStub = config.type != SpecialEventType.MissingStub, // 缺失票根没有票根
             isValid = config.shouldAccept // 使用配置的是否应该接受
         };
-
-        // 根据类型应用特定逻辑
-        ApplySpecialTicketLogic(config.type, ref ticket, show);
-
+        
         return ticket;
     }
-    
-    private void ApplySpecialTicketLogic(SpecialEventType type, ref TicketData ticket, DaySchedule.Show show)
-    {
-        switch (type)
-        {
-            case SpecialEventType.EarlyCheck:
-                ticket.isValid = true;
-                break;
-                
-            case SpecialEventType.OldTicket:
-                ticket.showTime = GeneratePastTimeForFilm(show.filmTitle);
-                break;
-                
-            case SpecialEventType.WrongNameSpelling:
-                ticket.filmTitle = GetWrongSpelling(show.filmTitle);
-                break;
-                
-            case SpecialEventType.DamagedTicket:
-                ticket.isValid = true; // 受损票但信息正确，应该放行
-                break;
-                
-            case SpecialEventType.MissingStub:
-                ticket.hasStub = false;
-                break;
-        }
-    }
-    
-    private string GeneratePastTimeForFilm(string filmTitle)
-    {
-        // 为不同电影生成不同的过去时间
-        var timeMappings = new Dictionary<string, string[]>
-        {
-            { "Avocadar", new string[] { "06:00", "07:30", "08:15" } },
-            { "Turning Green", new string[] { "08:00", "09:00" } },
-            { "La La Lamb", new string[] { "10:00", "11:00", "13:55" } }, // 05/10/25 13:55
-            { "The Whale of Wall Street", new string[] { "10:30", "11:45" } }
-        };
 
-        if (timeMappings.ContainsKey(filmTitle) && timeMappings[filmTitle].Length > 0)
-        {
-            return timeMappings[filmTitle][Random.Range(0, timeMappings[filmTitle].Length)];
-        }
-
-        var currentTime = System.DateTime.ParseExact("12:00", "HH:mm", null);
-        var pastTime = currentTime.AddHours(-Random.Range(1, 4));
-        return pastTime.ToString("HH:mm");
-    }
-
-    private string GetWrongSpelling(string correctName)
+    /// <summary>
+    /// 将 MM/dd/yy 格式的日期转换为 EnglishMonth/yy/dd 格式
+    /// 例如：04/10/25 → October/25/10
+    /// </summary>
+    private string FormatDateToEnglish(string date)
     {
-        if (filmTypos.ContainsKey(correctName) && filmTypos[correctName].Length > 0)
+        if (string.IsNullOrEmpty(date))
+            return date;
+            
+        try
         {
-            return filmTypos[correctName][Random.Range(0, filmTypos[correctName].Length)];
+            // 分割日期部分
+            string[] parts = date.Split('/');
+            if (parts.Length == 3)
+            {
+                string month = parts[0];
+                string day = parts[1];
+                string year = parts[2];
+                
+                // 转换月份
+                if (monthMapping.ContainsKey(month))
+                {
+                    return $"{monthMapping[month]}/{year}/{day}";
+                }
+                else
+                {
+                    Debug.LogWarning($"未知的月份: {month}，使用原始日期");
+                    return date;
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"日期格式不正确: {date}，期望格式: MM/dd/yy");
+                return date;
+            }
         }
-        return correctName;
+        catch (System.Exception e)
+        {
+            Debug.LogError($"日期转换错误: {date}, 错误: {e.Message}");
+            return date;
+        }
     }
 
     private Queue<TicketData> ShuffleQueue(Queue<TicketData> queue)

@@ -5,25 +5,30 @@ using System.Collections;
 
 public class TicketVisual : MonoBehaviour
 {
+    [Header("主票")]
     [SerializeField] private Image ticketBg;
     [SerializeField] private Text titleText;
     [SerializeField] private Text timeText;
-    [SerializeField] private Text specialText;
+    [SerializeField] private Text seatText;
+    
+    [Header("副券")]
     [SerializeField] private Image stub;
-    [SerializeField] private Image warningIcon; // 警告图标
-    [SerializeField] private Image damageOverlay; // 损坏覆盖层
-    [SerializeField] private Image drawnEffect; // 手绘效果
+    [SerializeField] private Text stubTitleText;
+    [SerializeField] private Text subTimeText;
+    [SerializeField] private Text subSeatText;
+    [SerializeField] private Text priceText;
 
+    [Header("图片替换")]
+    [SerializeField] private Image mainTicketImage;
+    [SerializeField] private Image stubImage;
+    
     private Color defaultColor;
     private Vector3 defaultStubPos;
+    private string generatedSeatNumber;
+    private TicketData currentTicketData;
 
     void Start()
     {
-        if (ticketBg != null)
-        {
-            defaultColor = ticketBg.color;
-        }
-
         if (stub != null)
         {
             defaultStubPos = stub.transform.localPosition;
@@ -32,179 +37,269 @@ public class TicketVisual : MonoBehaviour
 
     public void SetTicket(TicketData t)
     {
-        // 重置所有视觉效果
-        ResetVisuals();
+        // 保存当前票数据用于后续查询
+        currentTicketData = t;
 
-        // 设置基本信息
-        if (titleText) titleText.text = t.filmTitle;
-        if (timeText) timeText.text = t.showTime;
+        ResetVisuals();
         
-        // 设置特殊事件文本
-        string specialDisplayText = GetSpecialDisplayText(t.special);
-        if (specialText) 
+        generatedSeatNumber = "SEAT:" + GenerateRandomSeatNumber();
+
+        // 检查是否有特殊事件图片
+        bool hasSpecialImage = TryApplySpecialEventImage(t);
+
+        if (!hasSpecialImage)
         {
-            specialText.text = specialDisplayText;
-            specialText.color = GetSpecialTextColor(t.special);
+            // 如果没有特殊图片，显示正常文字信息和默认票面
+            SetTextInformation(t);
+            ShowDefaultTicketAppearance();
+        }
+        else
+        {
+            // 如果有特殊图片
+            ShowImageTicketAppearance();
         }
 
         // 设置票根显示
         if (stub) stub.enabled = t.hasStub;
+    }
 
-        // 根据票的类型应用不同的视觉效果
-        ApplyVisualEffects(t);
+    private bool TryApplySpecialEventImage(TicketData t)
+    {
+        if (t.special == SpecialEventType.None)
+            return false;
+
+        // 从特殊事件配置中获取图片
+        Sprite mainImage = GetSpecialEventMainImage(t.special);
+        
+        // 只有当主票图片存在时才认为有特殊图片
+        return mainImage != null;
+    }
+
+    private void ShowDefaultTicketAppearance()
+    {
+        // 显示默认票面：启用背景图片，禁用替换图片
+        if (ticketBg != null)
+        {
+            ticketBg.enabled = true;
+        }
+        if (mainTicketImage != null)
+        {
+            mainTicketImage.enabled = false;
+        }
+        if (stubImage != null)
+        {
+            stubImage.enabled = false;
+        }
+    }
+
+    private void ShowImageTicketAppearance()
+    {
+        // 显示图片票面：禁用默认背景，启用替换图片
+        if (ticketBg != null)
+        {
+            ticketBg.enabled = false;
+        }
+        
+        // 设置主票图片
+        if (mainTicketImage != null)
+        {
+            Sprite mainImage = GetSpecialEventMainImage(currentTicketData.special);
+            if (mainImage != null)
+            {
+                mainTicketImage.sprite = mainImage;
+                mainTicketImage.enabled = true;
+            }
+        }
+        
+        // 设置票根图片
+        if (stubImage != null)
+        {
+            Sprite stubImg = GetSpecialEventStubImage(currentTicketData.special);
+            if (stubImg != null)
+            {
+                stubImage.sprite = stubImg;
+                stubImage.enabled = true;
+            }
+        }
+    }
+
+    private void SetTextInformation(TicketData t)
+    {
+        // 设置基本信息
+        if (titleText) 
+        {
+            titleText.text = t.filmTitle;
+            titleText.enabled = true;
+        }
+        if (timeText)
+        {
+            timeText.text = $"screen . {t.showTime} . {t.showDate}";
+            timeText.enabled = true;
+        }
+        if (seatText) 
+        {
+            seatText.text = generatedSeatNumber;
+            seatText.enabled = true;
+        }
+
+        // 设置副券信息
+        if (stubTitleText) 
+        {
+            stubTitleText.text = t.filmTitle;
+            stubTitleText.enabled = true;
+        }
+        if (subTimeText) 
+        {
+            subTimeText.text = $"screen . {t.showTime} . {t.showDate}";
+            subTimeText.enabled = true;
+        }
+        if (subSeatText) 
+        {
+            subSeatText.text = generatedSeatNumber;
+            subSeatText.enabled = true;
+        }
+        if (priceText) 
+        {
+            priceText.text = "PRICE: $" + GetTicketPrice(t);
+            priceText.enabled = true;
+        }
+    }
+    
+    private Sprite GetSpecialEventMainImage(SpecialEventType eventType)
+    {
+        return GetSpecialEventImageFromConfig(eventType, true);
+    }
+
+    private Sprite GetSpecialEventStubImage(SpecialEventType eventType)
+    {
+        return GetSpecialEventImageFromConfig(eventType, false);
+    }
+
+    private Sprite GetSpecialEventImageFromConfig(SpecialEventType eventType, bool isMainTicket)
+    {
+        if (eventType == SpecialEventType.None)
+            return null;
+
+        // 获取当前关卡数据
+        DaySchedule currentDay = GetCurrentDaySchedule();
+        if (currentDay == null)
+        {
+            Debug.LogWarning("无法获取当前关卡数据");
+            return null;
+        }
+
+        // 遍历所有场次和特殊事件配置，查找匹配的图片
+        foreach (var show in currentDay.shows)
+        {
+            foreach (var specialEvent in show.specialEvents)
+            {
+                if (specialEvent.type == eventType)
+                {
+                    // 根据需求返回主票图片或票根图片
+                    if (isMainTicket)
+                    {
+                        return specialEvent.mainTicketImage;
+                    }
+                    else
+                    {
+                        return specialEvent.stubImage;
+                    }
+                }
+            }
+        }
+
+        Debug.Log($"未找到特殊事件 {eventType} 的图片配置");
+        return null;
+    }
+
+    private DaySchedule GetCurrentDaySchedule()
+    {
+        TicketGenerator ticketGenerator = FindObjectOfType<TicketGenerator>();
+        if (ticketGenerator != null)
+        {
+            return ticketGenerator.GetCurrentDay();
+        }
+        
+        TicketQueueController queueController = FindObjectOfType<TicketQueueController>();
+        if (queueController != null)
+        {
+            // 通过反射或其他方式获取 generator
+            var generatorField = typeof(TicketQueueController).GetField("generator", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            if (generatorField != null)
+            {
+                TicketGenerator generator = generatorField.GetValue(queueController) as TicketGenerator;
+                if (generator != null)
+                {
+                    return generator.GetCurrentDay();
+                }
+            }
+        }
+
+        // 最后尝试直接查找 LevelDatabase
+        LevelDatabase levelDatabase = FindObjectOfType<LevelDatabase>();
+        if (levelDatabase != null && levelDatabase.levels != null && levelDatabase.levels.Length > 0)
+        {
+            return levelDatabase.levels[0]; // 返回第一个关卡作为备用
+        }
+
+        return null;
+    }
+
+    private int GetTicketPrice(TicketData t)
+    {
+        // 从关卡配置中获取实际票价
+        DaySchedule currentDay = GetCurrentDaySchedule();
+        if (currentDay != null)
+        {
+            // 查找当前电影场次的票价
+            foreach (var show in currentDay.shows)
+            {
+                if (show.filmTitle == t.filmTitle && show.startTime == t.showTime)
+                {
+                    return show.ticketPrice;
+                }
+            }
+        }
+
+        // 默认票价
+        return Random.Range(12, 21);
+    }
+
+    private string GenerateRandomSeatNumber()
+    {
+        char row = (char)('A' + Random.Range(0, 10)); // A-J排
+        int number = Random.Range(1, 21); // 1-20号
+        return $"{row}-{number:00}";
     }
 
     private void ResetVisuals()
     {
-        // 重置背景色
-        if (ticketBg) ticketBg.color = defaultColor;
-        
-        // 隐藏所有效果
-        if (warningIcon) warningIcon.gameObject.SetActive(false);
-        if (damageOverlay) damageOverlay.gameObject.SetActive(false);
-        if (drawnEffect) drawnEffect.gameObject.SetActive(false);
-        
-        // 重置文本颜色
-        if (titleText) titleText.color = Color.black;
-        if (timeText) timeText.color = Color.black;
-        if (specialText) specialText.color = Color.gray;
-    }
-
-    private void ApplyVisualEffects(TicketData t)
-    {
-        switch (t.special)
+        // 重置背景 - 默认启用
+        if (ticketBg)
         {
-            case SpecialEventType.None:
-                // 正常票：绿色边框
-                if (ticketBg) ticketBg.color = new Color(0.9f, 1f, 0.9f, 1f);
-                break;
-
-            case SpecialEventType.EarlyCheck:
-                // 提前检票：黄色背景 + 时钟图标
-                if (ticketBg) ticketBg.color = new Color(1f, 1f, 0.8f, 1f);
-                if (warningIcon) 
-                {
-                    warningIcon.gameObject.SetActive(true);
-                    warningIcon.color = Color.yellow;
-                }
-                break;
-
-            case SpecialEventType.OldTicket:
-                // 旧票：褪色效果 + 过期图标
-                if (ticketBg) ticketBg.color = new Color(0.8f, 0.8f, 0.8f, 0.8f);
-                if (titleText) titleText.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-                if (timeText) timeText.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-                if (warningIcon) 
-                {
-                    warningIcon.gameObject.SetActive(true);
-                    warningIcon.color = Color.red;
-                }
-                break;
-
-            case SpecialEventType.WrongNameSpelling:
-                // 错误命名：红色高亮电影名
-                if (titleText) 
-                {
-                    titleText.color = Color.red;
-                    titleText.fontStyle = FontStyle.Bold;
-                }
-                if (warningIcon) 
-                {
-                    warningIcon.gameObject.SetActive(true);
-                    warningIcon.color = Color.red;
-                }
-                break;
-
-            case SpecialEventType.DamagedTicket:
-                // 受损票：污渍覆盖层
-                if (ticketBg) ticketBg.color = new Color(0.95f, 0.95f, 0.95f, 1f);
-                if (damageOverlay) 
-                {
-                    damageOverlay.gameObject.SetActive(true);
-                    damageOverlay.color = new Color(0.3f, 0.3f, 0.3f, 0.3f);
-                }
-                break;
-
-            case SpecialEventType.MissingStub:
-                // 缺失票根：红色叉号在票根位置
-                if (stub) 
-                {
-                    stub.enabled = true;
-                    stub.color = Color.red;
-                }
-                if (warningIcon) 
-                {
-                    warningIcon.gameObject.SetActive(true);
-                    warningIcon.color = Color.red;
-                }
-                break;
-
-            case SpecialEventType.DrawnTicket:
-                // 手画票：手绘纹理 + 不规则边框
-                if (ticketBg) ticketBg.color = new Color(0.9f, 1f, 0.9f, 1f);
-                if (drawnEffect) 
-                {
-                    drawnEffect.gameObject.SetActive(true);
-                    drawnEffect.color = new Color(1f, 1f, 1f, 0.3f);
-                }
-                if (titleText) titleText.fontStyle = FontStyle.Italic;
-                break;
-
-            case SpecialEventType.CopyTicket:
-                // 复制票：灰色背景 + 复印效果
-                if (ticketBg) ticketBg.color = new Color(0.9f, 0.9f, 1f, 0.7f);
-                if (titleText) titleText.color = new Color(0.3f, 0.3f, 0.3f, 1f);
-                if (timeText) timeText.color = new Color(0.3f, 0.3f, 0.3f, 1f);
-                break;
-
-            case SpecialEventType.ElectronicAbuse:
-                // 电子票滥用
-                if (ticketBg) ticketBg.color = new Color(0.9f, 1f, 1f, 1f);
-                break;
+            ticketBg.enabled = true;
         }
-
-        // 额外效果：如果没有票根，添加特殊提示
-        if (!t.hasStub && stub)
+        
+        // 重置票根
+        if (stub)
         {
             stub.enabled = true;
-            stub.color = Color.red;
-            if (specialText) specialText.text = "NO STUB - " + specialText.text;
         }
-    }
 
-    private string GetSpecialDisplayText(SpecialEventType special)
-    {
-        switch (special)
+        // 重置图片为禁用状态
+        if (mainTicketImage != null)
         {
-            case SpecialEventType.None: return "";
-            case SpecialEventType.EarlyCheck: return "Early Check-in";
-            case SpecialEventType.OldTicket: return "Expired Ticket";
-            case SpecialEventType.WrongNameSpelling: return "Wrong Film Name";
-            case SpecialEventType.DamagedTicket: return "Damaged Ticket";
-            case SpecialEventType.MissingStub: return "Missing Stub";
-            case SpecialEventType.DrawnTicket: return "Hand-drawn Ticket";
-            case SpecialEventType.CopyTicket: return "Photocopy Ticket";
-            case SpecialEventType.ElectronicAbuse: return "Electronic Abuse";
-            default: return special.ToString();
+            mainTicketImage.enabled = false;
+            mainTicketImage.sprite = null;
         }
-    }
-
-    private Color GetSpecialTextColor(SpecialEventType special)
-    {
-        switch (special)
+        if (stubImage != null)
         {
-            case SpecialEventType.EarlyCheck: return Color.yellow;
-            case SpecialEventType.OldTicket: return Color.red;
-            case SpecialEventType.WrongNameSpelling: return Color.red;
-            case SpecialEventType.MissingStub: return Color.red;
-            case SpecialEventType.DamagedTicket: return Color.gray;
-            case SpecialEventType.DrawnTicket: return Color.green;
-            case SpecialEventType.CopyTicket: return Color.blue;
-            case SpecialEventType.ElectronicAbuse: return Color.cyan;
-            default: return Color.gray;
+            stubImage.enabled = false;
+            stubImage.sprite = null;
         }
     }
-
+    
     // 撕票成功时，添加视觉效果
     public void OnTearSuccess()
     {
@@ -212,26 +307,15 @@ public class TicketVisual : MonoBehaviour
         {
             StartCoroutine(DropTicketStub());
         }
-        
-        // 添加整体票面动画
-        if (ticketBg != null)
-        {
-            ticketBg.transform.DOPunchScale(new Vector3(0.1f, 0.1f, 0f), 0.3f).SetUpdate(true);
-        }
     }
 
     private IEnumerator DropTicketStub()
     {
-        Vector3 targetPos = new Vector3(defaultStubPos.x, defaultStubPos.y - 100f, defaultStubPos.z);
+        Vector3 targetPos = new Vector3(defaultStubPos.x - 100, defaultStubPos.y - 200f, defaultStubPos.z);
         float duration = 1f;
         
         stub.transform.DOLocalMove(targetPos, duration)
             .SetEase(Ease.InOutQuad)
-            .SetUpdate(true);
-
-        // 同时添加淡出效果
-        stub.DOFade(0f, duration)
-            .SetEase(Ease.OutQuad)
             .SetUpdate(true);
 
         yield return new WaitForSeconds(duration);

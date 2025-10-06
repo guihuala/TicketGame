@@ -33,9 +33,7 @@ public class PowerUpUI : MonoBehaviour
         {
             int count = PowerUpManager.Instance.GetPowerUpCount(slot.itemId);
             bool hasPowerUp = count > 0;
-            
-            Debug.Log($"[PowerUpUI] 更新道具 {slot.itemId}: 数量={count}, 是否有道具={hasPowerUp}");
-            
+       
             // 更新数量显示
             if (slot.countText != null)
             {

@@ -12,34 +12,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6063c4d8d6a444808ba2001f03d35b90, type: 3}
   m_Name: Level_2
   m_EditorClassIdentifier: 
+  levelName: 04/10/25
+  levelStartTime: 08:00
   shows:
   - filmTitle: La La Lamb
     startTime: 10:00
     audienceCount: 5
-    special_Early: 1
-    special_OldTicket: 0
-    special_Copy: 0
-    special_Drawn: 0
-    special_Electronic: 0
-    special_Damaged: 0
+    ticketPrice: 1
+    specialEvents: []
   - filmTitle: La La Lamb
     startTime: 13:00
     audienceCount: 3
-    special_Early: 1
-    special_OldTicket: 0
-    special_Copy: 0
-    special_Drawn: 0
-    special_Electronic: 0
-    special_Damaged: 0
+    ticketPrice: 1
+    specialEvents: []
   - filmTitle: La La Lamb
     startTime: 15:00
     audienceCount: 5
-    special_Early: 1
-    special_OldTicket: 0
-    special_Copy: 0
-    special_Drawn: 0
-    special_Electronic: 0
-    special_Damaged: 0
+    ticketPrice: 1
+    specialEvents: []
+  timeScale: 1
+  timeBetweenShows: 2
+  timeBetweenTickets: 0.5
+  ticketSlideInDuration: 0.5
+  ticketSlideOutDuration: 0.5
+  initialTicketDelay: 1
   star1Income: 20
   star2Income: 50
   star3Income: 90

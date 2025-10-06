@@ -66,11 +66,7 @@ public class TitleUIController : MonoBehaviour
 
         // 执行移动动画
         targetTransform.DOMove(originalPosition, moveDuration)
-            .SetEase(moveEase)
-            .OnComplete(() =>
-            {
-                Debug.Log("Title UI 入场动画完成");
-            });
+            .SetEase(moveEase);
     }
 
     public void OnStartButtonClicked()

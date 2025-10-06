@@ -18,11 +18,9 @@ public class ScheduleClock : MonoBehaviour
         {
             levelStartTimeSeconds = (float)(time.TimeOfDay.TotalSeconds);
             simSeconds = levelStartTimeSeconds; // 设置初始时间
-            Debug.Log($"[ScheduleClock] 关卡开始时间设置为: {startTime} ({levelStartTimeSeconds}秒)");
         }
         else
         {
-            Debug.LogWarning($"[ScheduleClock] 无效的开始时间格式: {startTime}，使用默认时间08:00");
             levelStartTimeSeconds = 8 * 3600f; // 默认8:00
             simSeconds = levelStartTimeSeconds;
         }

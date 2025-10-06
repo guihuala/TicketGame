@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using DG.Tweening;
 
 public class GameOverPanel : BasePanel
 {
@@ -89,14 +90,12 @@ public class GameOverPanel : BasePanel
         if (isStarAnimationPlaying) return;
         
         int starCount = economyManager.GetStarRating();
+        PlayStarSoundEffect(starCount);
         Debug.Log($"[GameOverPanel] 开始星星动画，获得 {starCount} 颗星");
         
         StartCoroutine(StarAnimationCoroutine(starCount));
     }
 
-    /// <summary>
-    /// 星星动画协程
-    /// </summary>
     private IEnumerator StarAnimationCoroutine(int starCount)
     {
         isStarAnimationPlaying = true;
@@ -111,62 +110,28 @@ public class GameOverPanel : BasePanel
                 // 显示当前星星
                 stars[i].enabled = true;
                 
-                // 根据星星数量播放对应的音效
-                PlayStarSoundEffect(i + 1);
-                
                 Debug.Log($"[GameOverPanel] 显示第 {i + 1} 颗星");
 
-                // 播放缩放动画并等待完成
-                yield return StartCoroutine(PlayStarScaleAnimation(stars[i].transform));
+                // 使用DOTween播放缩放动画
+                Sequence starSequence = DOTween.Sequence();
+                starSequence.Append(stars[i].transform.DOScale(1.5f, 0.1f).SetEase(Ease.OutBack))
+                           .AppendInterval(0.1f)
+                           .Append(stars[i].transform.DOScale(1f, 0.1f).SetEase(Ease.InBack))
+                           .SetUpdate(true); // 使用不受时间缩放影响的更新
+
+                // 等待动画完成
+                yield return starSequence.WaitForCompletion();
             }
             
             // 如果不是最后一颗星，等待1秒显示下一颗星
             if (i < starCount - 1)
             {
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSecondsRealtime(1f);
             }
         }
         
         isStarAnimationPlaying = false;
         Debug.Log($"[GameOverPanel] 星星动画完成");
-    }
-
-    /// <summary>
-    /// 播放星星缩放动画
-    /// </summary>
-    private IEnumerator PlayStarScaleAnimation(Transform starTransform)
-    {
-        Vector3 originalScale = Vector3.one;
-        Vector3 targetScale = originalScale * 1.5f; // 稍微增大缩放倍数
-        
-        // 放大
-        float duration = 0.3f;
-        float timer = 0f;
-        
-        while (timer < duration)
-        {
-            timer += Time.unscaledDeltaTime;
-            float progress = timer / duration;
-            starTransform.localScale = Vector3.Lerp(originalScale, targetScale, progress);
-            yield return null;
-        }
-        
-        starTransform.localScale = targetScale;
-        
-        // 在最大缩放位置短暂停留
-        yield return new WaitForSeconds(0.1f);
-        
-        // 缩小回原尺寸
-        timer = 0f;
-        while (timer < duration)
-        {
-            timer += Time.unscaledDeltaTime;
-            float progress = timer / duration;
-            starTransform.localScale = Vector3.Lerp(targetScale, originalScale, progress);
-            yield return null;
-        }
-        
-        starTransform.localScale = originalScale;
     }
 
     /// <summary>
@@ -195,11 +160,6 @@ public class GameOverPanel : BasePanel
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlaySfx(soundName);
-            Debug.Log($"[GameOverPanel] 播放音效: {soundName}");
-        }
-        else
-        {
-            Debug.LogWarning($"[GameOverPanel] AudioManager 不可用，无法播放音效: {soundName}");
         }
     }
     
@@ -308,10 +268,22 @@ public class GameOverPanel : BasePanel
         GameManager.Instance.RestartCurrentLevel();
     }
 
-    // 当面板被禁用时停止所有协程
+    // 当面板被禁用时停止所有协程和DOTween动画
     private void OnDisable()
     {
         StopAllCoroutines();
         isStarAnimationPlaying = false;
+        
+        // 停止所有与星星相关的DOTween动画
+        if (stars != null)
+        {
+            foreach (var star in stars)
+            {
+                if (star != null)
+                {
+                    star.transform.DOKill();
+                }
+            }
+        }
     }
 }

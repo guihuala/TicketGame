@@ -9,6 +9,10 @@ public class DaySchedule : ScriptableObject
     [Tooltip("关卡名称（显示用）")]
     public string levelName = "04/10/25";
     
+    [Header("关卡日期")]
+    [Tooltip("关卡日期 (MM/dd/yy 格式，如 04/10/25)")]
+    public string levelDate = "04/10/25";
+    
     [Header("关卡开始时间")]
     [Tooltip("关卡开始的游戏时间 (HH:mm 格式，如 08:30、14:15)")]
     public string levelStartTime = "08:00";
@@ -52,6 +56,16 @@ public class DaySchedule : ScriptableObject
     }
     
     /// <summary>
+    /// 验证日期格式是否正确
+    /// </summary>
+    public bool IsDateValid()
+    {
+        return DateTime.TryParseExact(levelDate, "MM/dd/yy", 
+            System.Globalization.CultureInfo.InvariantCulture, 
+            System.Globalization.DateTimeStyles.None, out _);
+    }
+    
+    /// <summary>
     /// 获取开始时间的总秒数（从00:00开始计算）
     /// </summary>
     public float GetStartTimeInSeconds()
@@ -74,9 +88,17 @@ public class DaySchedule : ScriptableObject
         public int count;
         public string customFilmTitle;
         public string customShowTime;
+        public string customShowDate;
         public bool shouldAccept;
         public string targetFilmTitle; // 目标电影（用于提前检票到其他场次）
         public string targetShowTime;   // 目标时间（用于提前检票到其他场次）
+        public string targetShowDate;   // 目标日期（用于提前检票到其他场次）
+        
+        [Header("图片配置")]
+        [Tooltip("主票替换图片")]
+        public Sprite mainTicketImage;
+        [Tooltip("票根替换图片")]
+        public Sprite stubImage;
     }
 
     [Serializable]

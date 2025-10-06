@@ -3,14 +3,12 @@ using UnityEngine.UI;
 
 public class HandStateManager : MonoBehaviour
 {
-    [Header("UI图片组")]
-    [SerializeField] private Image[] uiImages;
+    [Header("Animator")]
+    [SerializeField] private Animator handAnimator;
     
-    [Header("有票时的图片")]
-    [SerializeField] private Sprite[] ticketActiveSprites;
-    
-    [Header("没票时的图片")]
-    [SerializeField] private Sprite[] ticketInactiveSprites;
+    [Header("动画参数名称")]
+    [SerializeField] private string hasTicketParam = "HasTicket";
+    [SerializeField] private string resetTrigger = "Reset";
 
     void Start()
     {
@@ -48,17 +46,7 @@ public class HandStateManager : MonoBehaviour
 
     private void SetUITicketState(bool hasTicket)
     {
-        if (uiImages == null || uiImages.Length == 0) return;
-        
-        Sprite[] targetSprites = hasTicket ? ticketActiveSprites : ticketInactiveSprites;
-        
-        // 应用图片切换
-        for (int i = 0; i < uiImages.Length && i < targetSprites.Length; i++)
-        {
-            if (uiImages[i] != null && targetSprites[i] != null)
-            {
-                uiImages[i].sprite = targetSprites[i];
-            }
-        }
+        // 设置动画参数
+        handAnimator.SetBool(hasTicketParam, hasTicket);
     }
 }

@@ -46,7 +46,7 @@ public class DayScheduleEditor : Editor
         }
 
         // 场次配置折叠面板
-        showShows = EditorGUILayout.Foldout(showShows, $"🎭 场次配置 (共{schedule.shows.Count}场)", true);
+        showShows = EditorGUILayout.Foldout(showShows, $"场次配置 (共{schedule.shows.Count}场)", true);
         if (showShows)
         {
             EditorGUI.indentLevel++;
@@ -79,7 +79,38 @@ public class DayScheduleEditor : Editor
         EditorGUILayout.EndHorizontal();
         
         EditorGUILayout.Space();
-        EditorGUILayout.HelpBox($"关卡: {schedule.levelName}", MessageType.Info);
+        
+        // 关卡日期
+        EditorGUILayout.LabelField("关卡日期", EditorStyles.miniLabel);
+        EditorGUILayout.BeginHorizontal();
+        {
+            schedule.levelDate = EditorGUILayout.TextField("日期(MM/dd/yy)", schedule.levelDate);
+
+            // 验证日期格式
+            if (!schedule.IsDateValid())
+            {
+                EditorGUILayout.LabelField("格式错误", GUILayout.Width(80));
+            }
+            else
+            {
+                EditorGUILayout.LabelField("格式正确", GUILayout.Width(80));
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+
+        // 提供快速选择常用日期的按钮
+        EditorGUILayout.BeginHorizontal();
+        {
+            if (GUILayout.Button("04/10/25", GUILayout.Width(80))) schedule.levelDate = "04/10/25";
+            if (GUILayout.Button("04/11/25", GUILayout.Width(80))) schedule.levelDate = "04/11/25";
+            if (GUILayout.Button("04/12/25", GUILayout.Width(80))) schedule.levelDate = "04/12/25";
+            if (GUILayout.Button("04/13/25", GUILayout.Width(80))) schedule.levelDate = "04/13/25";
+            GUILayout.FlexibleSpace();
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.Space();
+        EditorGUILayout.HelpBox($"关卡: {schedule.levelName} | 日期: {schedule.levelDate}", MessageType.Info);
     }
 
     private void DrawTimeSettings()
@@ -244,6 +275,24 @@ public class DayScheduleEditor : Editor
         }
         EditorGUILayout.EndHorizontal();
 
+        // 图片配置
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("图片配置", EditorStyles.miniLabel);
+        
+        EditorGUILayout.BeginHorizontal();
+        {
+            config.mainTicketImage = (Sprite)EditorGUILayout.ObjectField("主票图片", config.mainTicketImage, typeof(Sprite), false);
+            GUILayout.FlexibleSpace();
+        }
+        EditorGUILayout.EndHorizontal();
+        
+        EditorGUILayout.BeginHorizontal();
+        {
+            config.stubImage = (Sprite)EditorGUILayout.ObjectField("票根图片", config.stubImage, typeof(Sprite), false);
+            GUILayout.FlexibleSpace();
+        }
+        EditorGUILayout.EndHorizontal();
+
         // 根据事件类型显示额外配置
         switch (config.type)
         {
@@ -260,6 +309,13 @@ public class DayScheduleEditor : Editor
                 EditorGUILayout.BeginHorizontal();
             {
                 config.customShowTime = EditorGUILayout.TextField("旧票时间", config.customShowTime);
+                GUILayout.FlexibleSpace();
+            }
+                EditorGUILayout.EndHorizontal();
+                
+                EditorGUILayout.BeginHorizontal();
+            {
+                config.customShowDate = EditorGUILayout.TextField("旧票日期", config.customShowDate);
                 GUILayout.FlexibleSpace();
             }
                 EditorGUILayout.EndHorizontal();
@@ -282,6 +338,21 @@ public class DayScheduleEditor : Editor
                 GUILayout.FlexibleSpace();
             }
                 EditorGUILayout.EndHorizontal();
+                
+                EditorGUILayout.BeginHorizontal();
+            {
+                config.targetShowDate = EditorGUILayout.TextField("目标日期", config.targetShowDate);
+                GUILayout.FlexibleSpace();
+            }
+                EditorGUILayout.EndHorizontal();
+
+                // 自动同步到自定义字段
+                if (!string.IsNullOrEmpty(config.targetFilmTitle) && !string.IsNullOrEmpty(config.targetShowTime))
+                {
+                    config.customFilmTitle = config.targetFilmTitle;
+                    config.customShowTime = config.targetShowTime;
+                    config.customShowDate = config.targetShowDate;
+                }
 
                 // 提供快速选择当前关卡其他场次的按钮
                 if (schedule.shows.Count > 1)
@@ -320,6 +391,11 @@ public class DayScheduleEditor : Editor
             {
                 config.targetFilmTitle = otherShow.filmTitle;
                 config.targetShowTime = otherShow.startTime;
+                config.targetShowDate = schedule.levelDate;
+                // 自动同步到自定义字段
+                config.customFilmTitle = otherShow.filmTitle;
+                config.customShowTime = otherShow.startTime;
+                config.customShowDate = schedule.levelDate;
             });
         }
 
@@ -328,21 +404,47 @@ public class DayScheduleEditor : Editor
 
     private string GetEventDescription(DaySchedule.SpecialEventConfig config, DaySchedule.Show show)
     {
+        string baseDescription = "";
         switch (config.type)
         {
             case SpecialEventType.EarlyCheck:
-                return $"提前检票：电影 {show.filmTitle} {show.startTime}，应该{(config.shouldAccept ? "接受" : "拒绝")}";
+                if (!string.IsNullOrEmpty(config.targetFilmTitle) && !string.IsNullOrEmpty(config.targetShowTime))
+                {
+                    string targetDate = string.IsNullOrEmpty(config.targetShowDate) ? schedule.levelDate : config.targetShowDate;
+                    baseDescription = $"提前检票：持有 {config.targetFilmTitle} {targetDate} {config.targetShowTime} 的票\n" +
+                                     $"当前场次：{show.filmTitle} {schedule.levelDate} {show.startTime}\n" +
+                                     $"应该{(config.shouldAccept ? "接受" : "拒绝")}";
+                }
+                else
+                {
+                    baseDescription = $"提前检票：电影 {show.filmTitle} {show.startTime}";
+                }
+                break;
             case SpecialEventType.OldTicket:
-                return $"旧影票：正确电影 {show.filmTitle}，但时间是 {config.customShowTime}，应该{(config.shouldAccept ? "接受" : "拒绝")}";
+                string oldDate = string.IsNullOrEmpty(config.customShowDate) ? schedule.levelDate : config.customShowDate;
+                baseDescription = $"旧影票：正确电影 {show.filmTitle}，但时间是 {oldDate} {config.customShowTime}";
+                break;
             case SpecialEventType.WrongNameSpelling:
-                return $"错误命名：显示为 '{config.customFilmTitle}'，正确应该是 '{show.filmTitle}'，应该{(config.shouldAccept ? "接受" : "拒绝")}";
+                baseDescription = $"错误命名：显示为 '{config.customFilmTitle}'，正确应该是 '{show.filmTitle}'";
+                break;
             case SpecialEventType.DamagedTicket:
-                return $"受损影票：信息正确但有污渍，应该{(config.shouldAccept ? "接受" : "拒绝")}";
+                baseDescription = $"受损影票：信息正确但有污渍";
+                break;
             case SpecialEventType.MissingStub:
-                return $"缺失票根：信息正确但无票根，应该{(config.shouldAccept ? "接受" : "拒绝")}";
+                baseDescription = $"缺失票根：信息正确但无票根";
+                break;
             default:
-                return $"{config.type}：应该{(config.shouldAccept ? "接受" : "拒绝")}";
+                baseDescription = $"{config.type}";
+                break;
         }
+
+        // 添加图片信息
+        if (config.mainTicketImage != null)
+        {
+            baseDescription += $"\n使用图片: {config.mainTicketImage.name}";
+        }
+
+        return baseDescription;
     }
 
     private void DrawTools()
@@ -364,18 +466,27 @@ public class DayScheduleEditor : Editor
     {
         int totalAudience = schedule.shows.Sum(show => show.audienceCount);
         int totalSpecialEvents = schedule.shows.Sum(show => show.specialEvents.Sum(e => e.count));
+        int totalImages = schedule.shows.Sum(show => show.specialEvents.Count(e => e.mainTicketImage != null));
 
         string message = $"配置验证结果：\n" +
                          $"总场次：{schedule.shows.Count}\n" +
                          $"总观众：{totalAudience}\n" +
                          $"总特殊事件：{totalSpecialEvents}\n" +
+                         $"带图片事件：{totalImages}\n" +
                          $"时间比例：{schedule.timeScale}x\n" +
-                         $"开始时间：{schedule.levelStartTime}";
+                         $"开始时间：{schedule.levelStartTime}\n" +
+                         $"关卡日期：{schedule.levelDate}";
 
         // 检查开始时间格式
         if (!schedule.IsStartTimeValid())
         {
             message += $"\n开始时间格式错误，请使用 HH:mm 格式";
+        }
+
+        // 检查日期格式
+        if (!schedule.IsDateValid())
+        {
+            message += $"\n日期格式错误，请使用 MM/dd/yy 格式";
         }
 
         // 检查配置问题

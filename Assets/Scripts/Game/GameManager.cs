@@ -26,7 +26,6 @@ public class GameManager : Singleton<GameManager>
 
         // 加载对应的关卡数据
         ticketGenerator.SetLevel(selectedLevelIndex);
-
         // 启动游戏
         StartGame();
     }
@@ -66,7 +65,7 @@ public class GameManager : Singleton<GameManager>
         DaySchedule currentLevel = ticketGenerator.GetCurrentDay();
         if (currentLevel != null)
         {
-            string hintText = ticketGenerator.GetCurrentLevelName();
+            string hintText = "current level:\n" + ticketGenerator.GetCurrentLevelName();
             MsgCenter.SendMsg(MsgConst.MSG_SHOW_HINT, hintText, 3f);
         
             // 统一在这里初始化经济管理器

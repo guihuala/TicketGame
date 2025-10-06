@@ -36,10 +36,7 @@ public class PowerUpManager : Singleton<PowerUpManager>
             int uses = ShopManager.GetItemUses(itemId);
             // 即使使用次数为0，也添加到字典中，避免KeyNotFoundException
             activePowerUps[itemId] = uses;
-            Debug.Log($"[PowerUpManager] 从注册表加载道具: {itemId} x{uses}");
         }
-        
-        // 延迟一帧再更新UI，确保所有组件都已初始化
         StartCoroutine(DelayedUpdateUI());
     }
     
@@ -103,6 +100,7 @@ public class PowerUpManager : Singleton<PowerUpManager>
     }
     
     // 道具效果实现
+// 在 PowerUpManager.cs 中的 UseUVLight 方法修改为：
     private bool UseUVLight()
     {
         if (ticketQueue == null || !ticketQueue.IsWaitingForInput()) 
@@ -110,13 +108,16 @@ public class PowerUpManager : Singleton<PowerUpManager>
             Debug.LogWarning("[UVLight] 没有待检票的票");
             return false;
         }
-        
+    
         AudioManager.Instance.PlaySfx("UV_Light");
         Debug.Log("[UVLight] 使用紫外线灯验证票的真伪");
-        
-        // TODO: 在这里添加紫外线灯的具体效果
-        // 比如显示票的真伪信息、高亮显示问题区域等
-        
+    
+        // 获取当前票并验证真伪
+        bool isTicketValid = ticketQueue.ValidateCurrentTicketWithUVLight();
+    
+        // 显示真伪结果
+        ticketQueue.ShowUVLightResult(isTicketValid);
+    
         return true;
     }
     

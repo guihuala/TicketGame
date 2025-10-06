@@ -28,12 +28,6 @@ public class TicketValidator : MonoBehaviour
         bool timeMatch = clock.IsCorrectShowtime(t.showTime);
         bool tooEarly = clock.IsEarlierThanMinutes(t.showTime, 20);
         
-        // 添加详细的时间调试信息
-        Debug.Log($"[ValidateAccept] 当前时间: {clock.GetCurrentGameTime()}, 电影开场: {t.showTime}");
-        Debug.Log($"[ValidateAccept] 距离开场还有: {clock.GetMinutesUntilShowtime(t.showTime):F1} 分钟");
-        Debug.Log($"[ValidateAccept] 是否提前20分钟: {tooEarly}");
-
-        
         // 1. 检查片名错误（电影没有在本影院放映）
         if (!nameMatch)
         {
@@ -191,10 +185,6 @@ public class TicketValidator : MonoBehaviour
                 return false;
                 
             case SpecialEventType.CopyTicket:
-            case SpecialEventType.ElectronicAbuse:
-                // 复制票/电子票滥用：无效
-                return false;
-                
             case SpecialEventType.DamagedTicket:
             case SpecialEventType.MissingStub:
                 // 受损票/缺失票根：无效（根据规则6）
@@ -227,8 +217,6 @@ public class TicketValidator : MonoBehaviour
                 return "Missing ticket stub";
             case SpecialEventType.CopyTicket:
                 return "Copied ticket";
-            case SpecialEventType.ElectronicAbuse:
-                return "Electronic ticket abuse";
             default:
                 return "Invalid ticket";
         }
