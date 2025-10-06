@@ -9,11 +9,13 @@ public class HandStateManager : MonoBehaviour
     [Header("动画参数名称")]
     [SerializeField] private string hasTicketParam = "HasTicket";
     [SerializeField] private string resetTrigger = "Reset";
+    [SerializeField] private string useUVLightTrigger = "UseUVLight"; // 新增的UV灯动画触发器
 
     void Start()
     {
         MsgCenter.RegisterMsg(MsgConst.MSG_TICKET_SPAWNED, OnTicketSpawned);
         MsgCenter.RegisterMsg(MsgConst.MSG_TICKET_CHECKED, OnTicketChecked);
+        MsgCenter.RegisterMsg(MsgConst.MSG_USE_UV_LIGHT, OnUseUVLight); // 注册UV灯使用消息
         
         // 初始设置为没票状态
         SetUITicketState(false);
@@ -24,6 +26,7 @@ public class HandStateManager : MonoBehaviour
         // 取消消息监听
         MsgCenter.UnregisterMsg(MsgConst.MSG_TICKET_SPAWNED, OnTicketSpawned);
         MsgCenter.UnregisterMsg(MsgConst.MSG_TICKET_CHECKED, OnTicketChecked);
+        MsgCenter.UnregisterMsg(MsgConst.MSG_USE_UV_LIGHT, OnUseUVLight); // 取消UV灯消息监听
     }
 
     private void OnTicketSpawned(params object[] objs)
@@ -41,6 +44,16 @@ public class HandStateManager : MonoBehaviour
         if (objs.Length > 1 && objs[0] is TicketData && objs[1] is CheckResult)
         {
             SetUITicketState(false);
+        }
+    }
+
+    private void OnUseUVLight(params object[] objs)
+    {
+        // 播放UV灯使用动画
+        if (handAnimator != null)
+        {
+            handAnimator.SetTrigger(useUVLightTrigger);
+            Debug.Log("[HandStateManager] 播放UV灯动画");
         }
     }
 

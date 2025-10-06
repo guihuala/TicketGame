@@ -53,20 +53,6 @@ public class PowerUpUI : MonoBehaviour
                 }
             }
             
-            // 更新整个槽位的显示状态
-            if (slot.slotContainer != null)
-            {
-                slot.slotContainer.SetActive(hasPowerUp);
-            }
-            else
-            {
-                // 如果没有单独的容器，隐藏相关文本
-                if (slot.nameText != null)
-                    slot.nameText.gameObject.SetActive(hasPowerUp);
-                if (slot.countText != null)
-                    slot.countText.gameObject.SetActive(hasPowerUp);
-            }
-            
             // 视觉反馈 - 透明度
             CanvasGroup canvasGroup = slot.button.GetComponent<CanvasGroup>();
             if (canvasGroup != null)

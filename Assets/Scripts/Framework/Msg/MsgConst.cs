@@ -14,7 +14,7 @@ public class MsgConst
     public const int MSG_BROADCAST_DELAY = 21; 
     
     public const int MSG_SHOW_HINT = 31; // 显示提示信息
-    
-    // 新增相机震动消息
-    public const int MSG_CAMERA_SHAKE = 32; // (TicketValidator.ShakeType shakeType)
+    public const int MSG_CAMERA_SHAKE = 32;
+    public const int MSG_USE_UV_LIGHT = 33;
+    public const int MSG_USE_VIP_PASS = 34;
 }

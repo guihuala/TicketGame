@@ -101,7 +101,6 @@ public class PowerUpManager : Singleton<PowerUpManager>
     }
     
     // 道具效果实现
-// 在 PowerUpManager.cs 中的 UseUVLight 方法修改为：
     private bool UseUVLight()
     {
         if (ticketQueue == null || !ticketQueue.IsWaitingForInput()) 
@@ -109,16 +108,16 @@ public class PowerUpManager : Singleton<PowerUpManager>
             Debug.LogWarning("[UVLight] 没有待检票的票");
             return false;
         }
-    
+
         AudioManager.Instance.PlaySfx("UV_Light");
         Debug.Log("[UVLight] 使用紫外线灯验证票的真伪");
-    
+        
+        MsgCenter.SendMsg(MsgConst.MSG_USE_UV_LIGHT);
+
         // 获取当前票并验证真伪
         bool isTicketValid = ticketQueue.ValidateCurrentTicketWithUVLight();
-    
-        // 显示真伪结果
         ticketQueue.ShowUVLightResult(isTicketValid);
-    
+
         return true;
     }
     
@@ -129,8 +128,12 @@ public class PowerUpManager : Singleton<PowerUpManager>
             Debug.LogWarning("[VIPPass] 没有待检票的票");
             return false;
         }
-        
+    
         AudioManager.Instance.PlaySfx("VIP_Pass");
+    
+        // 发送VIP票使用消息，触发UI显示
+        MsgCenter.SendMsg(MsgConst.MSG_USE_VIP_PASS);
+    
         ticketQueue.AcceptCurrentTicket();
         Debug.Log("[VIPPass] 使用VIP票，观众直接通过");
         return true;
