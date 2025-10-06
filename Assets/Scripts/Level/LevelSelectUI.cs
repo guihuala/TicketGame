@@ -7,7 +7,6 @@ public class LevelSelectUI : MonoBehaviour
     public class LevelButtonData
     {
         public Button button;
-        public GameObject lockIcon;
         public GameObject star1;
         public GameObject star2;
         public GameObject star3;
@@ -55,12 +54,6 @@ public class LevelSelectUI : MonoBehaviour
             
             // 设置按钮交互状态
             buttonData.button.interactable = isUnlocked;
-            
-            // 显示/隐藏锁图标
-            if (buttonData.lockIcon != null)
-            {
-                buttonData.lockIcon.SetActive(!isUnlocked);
-            }
             
             // 更新星星显示
             if (buttonData.star1 != null) buttonData.star1.SetActive(stars >= 1);
