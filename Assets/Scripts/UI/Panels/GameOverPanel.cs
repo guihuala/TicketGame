@@ -90,7 +90,6 @@ public class GameOverPanel : BasePanel
         if (isStarAnimationPlaying) return;
         
         int starCount = economyManager.GetStarRating();
-        PlayStarSoundEffect(starCount);
         Debug.Log($"[GameOverPanel] 开始星星动画，获得 {starCount} 颗星");
         
         StartCoroutine(StarAnimationCoroutine(starCount));
@@ -110,6 +109,7 @@ public class GameOverPanel : BasePanel
                 // 显示当前星星
                 stars[i].enabled = true;
                 
+                AudioManager.Instance.PlaySfx("Popcorn");
                 Debug.Log($"[GameOverPanel] 显示第 {i + 1} 颗星");
 
                 // 使用DOTween播放缩放动画
@@ -132,35 +132,6 @@ public class GameOverPanel : BasePanel
         
         isStarAnimationPlaying = false;
         Debug.Log($"[GameOverPanel] 星星动画完成");
-    }
-
-    /// <summary>
-    /// 根据星星数量播放对应的音效
-    /// </summary>
-    private void PlayStarSoundEffect(int starNumber)
-    {
-        string soundName = "";
-        
-        switch (starNumber)
-        {
-            case 1:
-                soundName = "1Star";
-                break;
-            case 2:
-                soundName = "2Star";
-                break;
-            case 3:
-                soundName = "3Star";
-                break;
-            default:
-                soundName = "1Star"; // 默认音效
-                break;
-        }
-        
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlaySfx(soundName);
-        }
     }
     
     /// <summary>

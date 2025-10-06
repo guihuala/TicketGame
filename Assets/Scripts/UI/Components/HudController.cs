@@ -282,7 +282,7 @@ public class HudController : MonoBehaviour
         // 更新日期 - 使用关卡配置的日期
         if (slot.dateText != null)
         {
-            slot.dateText.text = FormatLevelDate(currentLevelDate);
+            slot.dateText.text = currentLevelDate;
         }
         
         // 加载并显示海报
@@ -309,47 +309,6 @@ public class HudController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 格式化关卡日期显示
-    /// 例如：04/10/25 → April 10, 2025
-    /// </summary>
-    private string FormatLevelDate(string date)
-    {
-        if (string.IsNullOrEmpty(date))
-            return "Today";
-            
-        try
-        {
-            string[] parts = date.Split('/');
-            if (parts.Length == 3)
-            {
-                string month = parts[0];
-                string day = parts[1];
-                string year = "20" + parts[2]; // 假设是20xx年
-                
-                // 月份映射
-                Dictionary<string, string> monthNames = new Dictionary<string, string>
-                {
-                    { "01", "January" }, { "02", "February" }, { "03", "March" },
-                    { "04", "April" }, { "05", "May" }, { "06", "June" },
-                    { "07", "July" }, { "08", "August" }, { "09", "September" },
-                    { "10", "October" }, { "11", "November" }, { "12", "December" }
-                };
-                
-                if (monthNames.ContainsKey(month))
-                {
-                    return $"{monthNames[month]} {int.Parse(day)}, {year}";
-                }
-            }
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"日期格式化错误: {date}, 错误: {e.Message}");
-        }
-        
-        return date; // 如果格式化失败，返回原始日期
-    }
-
     private void UpdateMoneyDisplay()
     {
         if (economyManager != null && moneyText != null)
@@ -363,7 +322,41 @@ public class HudController : MonoBehaviour
         if (scheduleClock != null && timeText != null)
         {
             TimeSpan time = TimeSpan.FromSeconds(scheduleClock.simSeconds);
-            timeText.text = time.ToString(@"hh\:mm");
+        
+            // 获取当前关卡日期
+            DaySchedule currentDay = ticketGenerator.GetCurrentLevel();
+            if (currentDay != null && !string.IsNullOrEmpty(currentDay.levelDate))
+            {
+                try
+                {
+                    // 解析关卡日期
+                    string[] dateParts = currentDay.levelDate.Split('/');
+                    if (dateParts.Length == 3)
+                    {
+                        string month = dateParts[0];
+                        string day = dateParts[1];
+                        string year = dateParts[2];
+                    
+                        // 格式：月份/日/年 时:分
+                        timeText.text = $"{month}/{day}/{year} {time.Hours:D2}:{time.Minutes:D2}";
+                    }
+                    else
+                    {
+                        // 如果日期格式不正确，使用默认格式
+                        timeText.text = $"{time.Hours:D2}:{time.Minutes:D2}";
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    Debug.LogError($"时间显示格式化错误: {e.Message}");
+                    timeText.text = $"{time.Hours:D2}:{time.Minutes:D2}";
+                }
+            }
+            else
+            {
+                // 如果没有关卡日期，只显示时间
+                timeText.text = $"{time.Hours:D2}:{time.Minutes:D2}";
+            }
         }
     }
     

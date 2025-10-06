@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using System.Collections;
 using Random = UnityEngine.Random;
+using DG.Tweening;
 
 public class TicketUI : MonoBehaviour
 {
@@ -14,6 +15,8 @@ public class TicketUI : MonoBehaviour
     [SerializeField] private GameObject uvLightValidEffect;    // 有效票的UV效果
     [SerializeField] private GameObject uvLightInvalidEffect;  // 无效票的UV效果
     [SerializeField] private float uvEffectDuration = 2f;      // UV效果持续时间
+    [SerializeField] private float rotationDuration = 0.5f;    // 旋转动画持续时间
+    [SerializeField] private float rotationAngle = 180f;       // 旋转角度
 
     private void Start()
     {
@@ -38,6 +41,7 @@ public class TicketUI : MonoBehaviour
         if (uvLightValidEffect != null)
         {
             uvLightValidEffect.SetActive(true);
+            PlayRotationAnimation(uvLightValidEffect.transform);
             StartCoroutine(HideUVEffectAfterDelay(uvLightValidEffect));
         }
         
@@ -49,10 +53,29 @@ public class TicketUI : MonoBehaviour
         if (uvLightInvalidEffect != null)
         {
             uvLightInvalidEffect.SetActive(true);
+            PlayRotationAnimation(uvLightInvalidEffect.transform);
             StartCoroutine(HideUVEffectAfterDelay(uvLightInvalidEffect));
         }
         
         Debug.Log("[TicketUI] UV Light: 票是假的 ✗");
+    }
+
+    /// <summary>
+    /// 播放旋转动画
+    /// </summary>
+    private void PlayRotationAnimation(Transform effectTransform)
+    {
+        // 重置旋转
+        effectTransform.localRotation = Quaternion.identity;
+        
+        // 使用DOTween创建旋转动画
+        effectTransform.DORotate(new Vector3(0, 0, rotationAngle), rotationDuration, RotateMode.LocalAxisAdd)
+            .SetEase(Ease.OutBack)
+            .OnComplete(() =>
+            {
+                // 动画完成后可以添加其他效果
+                Debug.Log("[TicketUI] 旋转动画完成");
+            });
     }
 
     private IEnumerator HideUVEffectAfterDelay(GameObject effect)

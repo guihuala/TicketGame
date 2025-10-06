@@ -54,13 +54,6 @@ public class ScheduleClock : MonoBehaviour
         return minutesUntilShow >= minutes;
     }
     
-    public double GetMinutesUntilShowtime(string showHHmm)
-    {
-        var now = SecondsToTime(simSeconds);
-        var show = DateTime.ParseExact(showHHmm, "HH:mm", CultureInfo.InvariantCulture);
-        return (show - now).TotalMinutes;
-    }
-    
     public bool AllProcessedBeforeShowtime() => finishedBeforeShowtime;
 
     private DateTime SecondsToTime(float s)

@@ -66,6 +66,116 @@ public class TicketGenerator : MonoBehaviour
         return q;
     }
     
+    /// <summary>
+    /// 为接下来20分钟内的所有电影生成混合票队列
+    /// </summary>
+    public Queue<TicketData> BuildMixedQueueForNext20Minutes(List<DaySchedule.Show> upcomingShows, ScheduleClock clock)
+    {
+        var mixedQueue = new Queue<TicketData>();
+        var allTickets = new List<TicketData>();
+        
+        // 为每个即将开始的场次生成票
+        foreach (var show in upcomingShows)
+        {
+            // 计算这个场次应该生成的票数（基于时间比例）
+            int ticketCountForShow = CalculateTicketCountForUpcomingShow(show, clock);
+            if (ticketCountForShow <= 0) continue;
+            
+            // 生成这个场次的票（包括特殊票）
+            var showTickets = GenerateTicketsForUpcomingShow(show, ticketCountForShow);
+            allTickets.AddRange(showTickets);
+            
+            Debug.Log($"[TicketGenerator] 为即将开始的场次 '{show.filmTitle}' ({show.startTime}) 生成 {showTickets.Count} 张票");
+        }
+        
+        // 打乱所有票的顺序
+        allTickets = ShuffleList(allTickets);
+        
+        // 放入队列
+        foreach (var ticket in allTickets)
+        {
+            mixedQueue.Enqueue(ticket);
+        }
+        
+        Debug.Log($"[TicketGenerator] 为接下来20分钟内的 {upcomingShows.Count} 个场次生成混合票队列，总计 {mixedQueue.Count} 张票");
+        return mixedQueue;
+    }
+    
+    /// <summary>
+    /// 计算为即将开始的场次生成多少张票
+    /// </summary>
+    private int CalculateTicketCountForUpcomingShow(DaySchedule.Show show, ScheduleClock clock)
+    {
+        try
+        {
+            var showTime = System.DateTime.ParseExact(show.startTime, "HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+            var currentTime = System.DateTime.ParseExact(clock.GetCurrentGameTime(), "HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+            
+            double minutesUntilShow = (showTime - currentTime).TotalMinutes;
+            
+            // 基于距离开场时间计算票数比例
+            // 距离越近，生成的票越多
+            float ticketRatio = Mathf.Clamp01(1f - (float)(minutesUntilShow / 20f));
+            
+            int ticketCount = Mathf.RoundToInt(show.audienceCount * ticketRatio);
+            
+            // 确保至少生成1张票（如果有观众的话）
+            ticketCount = Mathf.Clamp(ticketCount, 0, show.audienceCount);
+            
+            return ticketCount;
+        }
+        catch
+        {
+            // 如果解析时间出错，使用默认值
+            return Mathf.RoundToInt(show.audienceCount * 0.5f);
+        }
+    }
+    
+    /// <summary>
+    /// 为即将开始的场次生成票
+    /// </summary>
+    private List<TicketData> GenerateTicketsForUpcomingShow(DaySchedule.Show show, int ticketCount)
+    {
+        var tickets = new List<TicketData>();
+        
+        // 计算特殊票数量（按比例）
+        int specialTicketCount = 0;
+        foreach (var specialConfig in show.specialEvents)
+        {
+            // 按比例减少特殊票数量
+            int adjustedSpecialCount = Mathf.RoundToInt(specialConfig.count * ((float)ticketCount / show.audienceCount));
+            adjustedSpecialCount = Mathf.Clamp(adjustedSpecialCount, 0, specialConfig.count);
+            
+            for (int i = 0; i < adjustedSpecialCount; i++)
+            {
+                var specialTicket = CreateSpecialTicket(specialConfig, show);
+                tickets.Add(specialTicket);
+                specialTicketCount++;
+            }
+        }
+        
+        // 计算正常票数量
+        int normalTicketCount = ticketCount - specialTicketCount;
+        if (normalTicketCount < 0)
+        {
+            // 如果特殊票过多，调整数量
+            while (tickets.Count > ticketCount)
+            {
+                tickets.RemoveAt(Random.Range(0, tickets.Count));
+            }
+            normalTicketCount = 0;
+        }
+        
+        // 生成正常票
+        for (int i = 0; i < normalTicketCount; i++)
+        {
+            var normalTicket = CreateNormalTicket(show);
+            tickets.Add(normalTicket);
+        }
+        
+        return tickets;
+    }
+    
     private List<TicketData> CreateSpecialTickets(DaySchedule.SpecialEventConfig config, DaySchedule.Show show)
     {
         var list = new List<TicketData>();
@@ -166,7 +276,12 @@ public class TicketGenerator : MonoBehaviour
 
     private Queue<TicketData> ShuffleQueue(Queue<TicketData> queue)
     {
-        var list = new List<TicketData>(queue);
+        var list = ShuffleList(new List<TicketData>(queue));
+        return new Queue<TicketData>(list);
+    }
+    
+    private List<TicketData> ShuffleList(List<TicketData> list)
+    {
         for (int i = 0; i < list.Count; i++)
         {
             var temp = list[i];
@@ -174,7 +289,7 @@ public class TicketGenerator : MonoBehaviour
             list[i] = list[randomIndex];
             list[randomIndex] = temp;
         }
-        return new Queue<TicketData>(list);
+        return list;
     }
 
     public DaySchedule GetCurrentLevel()
@@ -196,12 +311,70 @@ public class TicketGenerator : MonoBehaviour
         return null;
     }
     
+    /// <summary>
+    /// 获取接下来20分钟内的所有场次
+    /// </summary>
+    public List<DaySchedule.Show> GetUpcomingShows(ScheduleClock clock, int minutesAhead = 20)
+    {
+        var upcomingShows = new List<DaySchedule.Show>();
+        var currentDay = GetCurrentLevel();
+        
+        if (currentDay == null) return upcomingShows;
+        
+        try
+        {
+            var currentTime = System.DateTime.ParseExact(clock.GetCurrentGameTime(), "HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+            
+            foreach (var show in currentDay.shows)
+            {
+                var showTime = System.DateTime.ParseExact(show.startTime, "HH:mm", System.Globalization.CultureInfo.InvariantCulture);
+                double minutesUntilShow = (showTime - currentTime).TotalMinutes;
+                
+                // 只包括未来20分钟内的场次（不包括已开始的）
+                if (minutesUntilShow > 0 && minutesUntilShow <= minutesAhead)
+                {
+                    upcomingShows.Add(show);
+                }
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[TicketGenerator] 获取即将开始场次时出错: {e.Message}");
+        }
+        
+        return upcomingShows;
+    }
+    
     public string GetCurrentLevelName()
     {
         var currentDay = GetCurrentLevel();
         return currentDay != null ? currentDay.levelName : "unknown";
     }
 
-    public void SetLevel(int index) => currentLevelIndex = index;
-    public void SetDatabase(LevelDatabase db) => database = db;
+    public bool SetLevel(int index)
+    {
+        if (database == null || database.levels == null)
+        {
+            Debug.LogWarning("[TicketGenerator] 数据库为空，无法设置关卡");
+            return false;
+        }
+    
+        if (index < 0 || index >= database.levels.Length)
+        {
+            Debug.LogWarning($"[TicketGenerator] 关卡索引 {index} 超出范围，总关卡数: {database.levels.Length}");
+            return false;
+        }
+    
+        currentLevelIndex = index;
+        var level = GetCurrentLevel();
+    
+        if (level == null)
+        {
+            Debug.LogError($"[TicketGenerator] 设置关卡失败，索引 {index} 对应的关卡为 null");
+            return false;
+        }
+    
+        Debug.Log($"[TicketGenerator] 成功设置关卡: {index}, 关卡名称: {level.levelName}");
+        return true;
+    }
 }

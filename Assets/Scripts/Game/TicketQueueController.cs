@@ -150,41 +150,59 @@ public class TicketQueueController : MonoBehaviour
         // 使用关卡配置的滑入动画持续时间
         currentTicketUI.transform.DOMove(ticketDisplayPoint.position, currentDay.ticketSlideInDuration)
             .SetEase(Ease.OutBack)
-            .OnComplete(() =>
-            {
-                waitingForPlayerInput = true;
-            });
+            .OnComplete(() => { waitingForPlayerInput = true; });
 
         MsgCenter.SendMsg(MsgConst.MSG_TICKET_SPAWNED, currentTicket);
     }
 
     /// <summary>
-    /// 跳到下一场电影开场前20分钟
+    /// 跳到下一场电影开场前20分钟（仅在距离大于20分钟时跳转）
     /// </summary>
     private void JumpToNextShowTime()
     {
         if (showIndex >= currentDay.shows.Count) return;
-        
+
         var nextShow = currentDay.shows[showIndex];
-        
+
         try
         {
             // 解析下一场电影的开场时间
             var nextShowTime = DateTime.ParseExact(nextShow.startTime, "HH:mm", CultureInfo.InvariantCulture);
-            
-            // 计算跳到开场前20分钟的时间
-            var targetTime = nextShowTime.AddMinutes(-20);
-            
-            // 将目标时间转换为秒数
-            float targetSeconds = (float)(targetTime.TimeOfDay.TotalSeconds);
-            
-            // 设置时钟时间
-            scheduleClock.simSeconds = targetSeconds;
-            
-            Debug.Log($"[TicketQueueController] 时间跳转: 跳到下一场 '{nextShow.filmTitle}' 开场前20分钟 ({targetTime:HH:mm})");
-            
-            // 立即开始下一场（不使用延迟）
-            StartShow();
+
+            // 获取当前游戏内时间
+            var currentTime =
+                DateTime.ParseExact(scheduleClock.GetCurrentGameTime(), "HH:mm", CultureInfo.InvariantCulture);
+
+            // 计算时间差（分钟）
+            TimeSpan timeDifference = nextShowTime - currentTime;
+            double minutesUntilShow = timeDifference.TotalMinutes;
+
+            // 只有当距离下一场开场大于20分钟时才进行时间跳转
+            if (minutesUntilShow > 20)
+            {
+                // 计算跳到开场前20分钟的时间
+                var targetTime = nextShowTime.AddMinutes(-20);
+
+                // 将目标时间转换为秒数
+                float targetSeconds = (float)(targetTime.TimeOfDay.TotalSeconds);
+
+                // 设置时钟时间
+                scheduleClock.simSeconds = targetSeconds;
+
+                Debug.Log(
+                    $"[TicketQueueController] 时间跳转: 跳到下一场 '{nextShow.filmTitle}' 开场前20分钟 ({targetTime:HH:mm})，时间跳转 {minutesUntilShow - 20:F1} 分钟");
+
+                // 使用常规队列
+                StartShow();
+            }
+            else
+            {
+                Debug.Log(
+                    $"[TicketQueueController] 时间跳转跳过: 距离下一场 '{nextShow.filmTitle}' 只有 {minutesUntilShow:F1} 分钟，小于等于20分钟，使用混合票队列");
+
+                // 使用混合票队列开始下一场
+                StartShowWithMixedQueue();
+            }
         }
         catch (Exception e)
         {
@@ -192,6 +210,56 @@ public class TicketQueueController : MonoBehaviour
             // 出错时使用默认延迟
             Invoke(nameof(StartShow), currentDay.timeBetweenShows);
         }
+    }
+
+    /// <summary>
+    /// 使用混合票队列开始场次
+    /// </summary>
+    private void StartShowWithMixedQueue()
+    {
+        currentDay = generator.GetCurrentLevel();
+        if (currentDay == null)
+        {
+            MsgCenter.SendMsgAct(MsgConst.MSG_GAME_OVER);
+            return;
+        }
+
+        if (showIndex >= currentDay.shows.Count)
+        {
+            MsgCenter.SendMsgAct(MsgConst.MSG_GAME_OVER);
+            GameManager.Instance.EndGame();
+            return;
+        }
+
+        var show = currentDay.shows[showIndex];
+
+        // 获取接下来20分钟内的所有场次
+        var upcomingShows = generator.GetUpcomingShows(scheduleClock, 20);
+
+        if (upcomingShows.Count > 0)
+        {
+            // 使用混合票队列
+            currentQueue = generator.BuildMixedQueueForNext20Minutes(upcomingShows, scheduleClock);
+            Debug.Log($"[TicketQueueController] 使用混合票队列，包含 {upcomingShows.Count} 个场次的票");
+        }
+        else
+        {
+            // 如果没有即将开始的场次，使用常规队列
+            currentQueue = generator.BuildQueueForShow(show);
+            Debug.Log($"[TicketQueueController] 使用常规票队列");
+        }
+
+        scheduleClock.SetTargetShow(show.filmTitle, show.startTime);
+        showActive = true;
+
+        MsgCenter.SendMsg(MsgConst.MSG_SHOW_START, show.filmTitle, show.startTime);
+
+        // 显示场次开始提示
+        string showHint = $"Scene {showIndex + 1}\n{show.filmTitle}\nStarts at {show.startTime}";
+        MsgCenter.SendMsg(MsgConst.MSG_SHOW_HINT, showHint, 2.5f);
+
+        // 使用关卡配置的初始延迟
+        Invoke(nameof(NextTicket), currentDay.initialTicketDelay);
     }
 
     private void ProcessTicketResult(CheckResult result)
