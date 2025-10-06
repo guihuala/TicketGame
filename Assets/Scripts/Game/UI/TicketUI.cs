@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using System.Collections;
 using Random = UnityEngine.Random;
 
 public class TicketUI : MonoBehaviour
@@ -54,7 +55,7 @@ public class TicketUI : MonoBehaviour
         Debug.Log("[TicketUI] UV Light: 票是假的 ✗");
     }
 
-    private System.Collections.IEnumerator HideUVEffectAfterDelay(GameObject effect)
+    private IEnumerator HideUVEffectAfterDelay(GameObject effect)
     {
         yield return new WaitForSeconds(uvEffectDuration);
         if (effect != null)

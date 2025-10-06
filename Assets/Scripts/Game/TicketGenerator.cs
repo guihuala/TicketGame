@@ -107,8 +107,7 @@ public class TicketGenerator : MonoBehaviour
         
         // 格式化日期
         string formattedDate = FormatDateToEnglish(ticketDate);
-        
-        Debug.Log($"{config.customFilmTitle} : {config.customShowTime} : {formattedDate}");
+
         var ticket = new TicketData
         {
             filmTitle = string.IsNullOrEmpty(config.customFilmTitle) ? show.filmTitle : config.customFilmTitle,

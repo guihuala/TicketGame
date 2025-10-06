@@ -58,9 +58,38 @@ public class DayScheduleEditor : Editor
         EditorGUILayout.Space();
         DrawTools();
 
+        // 检查是否有修改并自动标记为dirty
+        if (GUI.changed)
+        {
+            MarkAsDirty();
+        }
+
         serializedObject.ApplyModifiedProperties();
     }
     
+    // 标记SO为已修改并保存
+    private void MarkAsDirty()
+    {
+        EditorUtility.SetDirty(schedule);
+    }
+
+    // 立即保存到磁盘
+    private void SaveImmediate()
+    {
+        MarkAsDirty();
+        AssetDatabase.SaveAssets();
+        Debug.Log($"已保存: {schedule.name}");
+    }
+
+    // 强制保存并刷新
+    private void ForceSave()
+    {
+        MarkAsDirty();
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log($"已强制保存并刷新: {schedule.name}");
+    }
+
     private void DrawBasicInfo()
     {
         EditorGUILayout.LabelField("关卡名称", EditorStyles.miniLabel);
@@ -69,11 +98,31 @@ public class DayScheduleEditor : Editor
         // 提供一些预设关卡名按钮
         EditorGUILayout.BeginHorizontal();
         {
-            if (GUILayout.Button("早班", GUILayout.Width(50))) schedule.levelName = "早班检票";
-            if (GUILayout.Button("午班", GUILayout.Width(50))) schedule.levelName = "午班检票";
-            if (GUILayout.Button("晚班", GUILayout.Width(50))) schedule.levelName = "晚班检票";
-            if (GUILayout.Button("周末", GUILayout.Width(50))) schedule.levelName = "周末高峰";
-            if (GUILayout.Button("节日", GUILayout.Width(50))) schedule.levelName = "节日特场";
+            if (GUILayout.Button("早班", GUILayout.Width(50))) 
+            { 
+                schedule.levelName = "早班检票";
+                MarkAsDirty();
+            }
+            if (GUILayout.Button("午班", GUILayout.Width(50))) 
+            { 
+                schedule.levelName = "午班检票";
+                MarkAsDirty();
+            }
+            if (GUILayout.Button("晚班", GUILayout.Width(50))) 
+            { 
+                schedule.levelName = "晚班检票";
+                MarkAsDirty();
+            }
+            if (GUILayout.Button("周末", GUILayout.Width(50))) 
+            { 
+                schedule.levelName = "周末高峰";
+                MarkAsDirty();
+            }
+            if (GUILayout.Button("节日", GUILayout.Width(50))) 
+            { 
+                schedule.levelName = "节日特场";
+                MarkAsDirty();
+            }
             GUILayout.FlexibleSpace();
         }
         EditorGUILayout.EndHorizontal();
@@ -101,10 +150,26 @@ public class DayScheduleEditor : Editor
         // 提供快速选择常用日期的按钮
         EditorGUILayout.BeginHorizontal();
         {
-            if (GUILayout.Button("04/10/25", GUILayout.Width(80))) schedule.levelDate = "04/10/25";
-            if (GUILayout.Button("04/11/25", GUILayout.Width(80))) schedule.levelDate = "04/11/25";
-            if (GUILayout.Button("04/12/25", GUILayout.Width(80))) schedule.levelDate = "04/12/25";
-            if (GUILayout.Button("04/13/25", GUILayout.Width(80))) schedule.levelDate = "04/13/25";
+            if (GUILayout.Button("04/10/25", GUILayout.Width(80))) 
+            { 
+                schedule.levelDate = "04/10/25";
+                MarkAsDirty();
+            }
+            if (GUILayout.Button("04/11/25", GUILayout.Width(80))) 
+            { 
+                schedule.levelDate = "04/11/25";
+                MarkAsDirty();
+            }
+            if (GUILayout.Button("04/12/25", GUILayout.Width(80))) 
+            { 
+                schedule.levelDate = "04/12/25";
+                MarkAsDirty();
+            }
+            if (GUILayout.Button("04/13/25", GUILayout.Width(80))) 
+            { 
+                schedule.levelDate = "04/13/25";
+                MarkAsDirty();
+            }
             GUILayout.FlexibleSpace();
         }
         EditorGUILayout.EndHorizontal();
@@ -137,11 +202,31 @@ public class DayScheduleEditor : Editor
         // 提供快速选择常用时间的按钮
         EditorGUILayout.BeginHorizontal();
         {
-            if (GUILayout.Button("08:00", GUILayout.Width(60))) schedule.levelStartTime = "08:00";
-            if (GUILayout.Button("09:30", GUILayout.Width(60))) schedule.levelStartTime = "09:30";
-            if (GUILayout.Button("11:00", GUILayout.Width(60))) schedule.levelStartTime = "11:00";
-            if (GUILayout.Button("13:15", GUILayout.Width(60))) schedule.levelStartTime = "13:15";
-            if (GUILayout.Button("14:45", GUILayout.Width(60))) schedule.levelStartTime = "14:45";
+            if (GUILayout.Button("08:00", GUILayout.Width(60))) 
+            { 
+                schedule.levelStartTime = "08:00";
+                MarkAsDirty();
+            }
+            if (GUILayout.Button("09:30", GUILayout.Width(60))) 
+            { 
+                schedule.levelStartTime = "09:30";
+                MarkAsDirty();
+            }
+            if (GUILayout.Button("11:00", GUILayout.Width(60))) 
+            { 
+                schedule.levelStartTime = "11:00";
+                MarkAsDirty();
+            }
+            if (GUILayout.Button("13:15", GUILayout.Width(60))) 
+            { 
+                schedule.levelStartTime = "13:15";
+                MarkAsDirty();
+            }
+            if (GUILayout.Button("14:45", GUILayout.Width(60))) 
+            { 
+                schedule.levelStartTime = "14:45";
+                MarkAsDirty();
+            }
             GUILayout.FlexibleSpace();
         }
         EditorGUILayout.EndHorizontal();
@@ -184,12 +269,14 @@ public class DayScheduleEditor : Editor
         if (GUILayout.Button("添加场次"))
         {
             schedule.shows.Add(new DaySchedule.Show());
+            MarkAsDirty();
         }
         if (GUILayout.Button("清空场次"))
         {
             if (EditorUtility.DisplayDialog("确认清空", "确定要清空所有场次吗？", "确定", "取消"))
             {
                 schedule.shows.Clear();
+                MarkAsDirty();
             }
         }
         EditorGUILayout.EndHorizontal();
@@ -224,11 +311,13 @@ public class DayScheduleEditor : Editor
         if (GUILayout.Button("添加特殊事件", GUILayout.Width(120)))
         {
             show.specialEvents.Add(new DaySchedule.SpecialEventConfig());
+            MarkAsDirty();
         }
 
         if (GUILayout.Button("删除场次", GUILayout.Width(80)))
         {
             schedule.shows.RemoveAt(index);
+            MarkAsDirty();
             return;
         }
 
@@ -252,6 +341,7 @@ public class DayScheduleEditor : Editor
             if (GUILayout.Button("删除", GUILayout.Width(50)))
             {
                 show.specialEvents.RemoveAt(index);
+                MarkAsDirty();
                 EditorGUILayout.EndHorizontal();
                 EditorGUILayout.EndVertical();
                 return;
@@ -396,6 +486,7 @@ public class DayScheduleEditor : Editor
                 config.customFilmTitle = otherShow.filmTitle;
                 config.customShowTime = otherShow.startTime;
                 config.customShowDate = schedule.levelDate;
+                MarkAsDirty();
             });
         }
 
@@ -457,7 +548,22 @@ public class DayScheduleEditor : Editor
         {
             ValidateConfiguration();
         }
+        
+        // 添加保存按钮
+        if (GUILayout.Button("立即保存"))
+        {
+            SaveImmediate();
+        }
+        
+        // 添加强制保存按钮
+        if (GUILayout.Button("强制保存"))
+        {
+            ForceSave();
+        }
         EditorGUILayout.EndHorizontal();
+
+        // 显示保存状态
+        EditorGUILayout.HelpBox("提示：修改后会自动标记为需要保存。点击'立即保存'将更改写入磁盘。", MessageType.Info);
 
         EditorGUILayout.EndVertical();
     }

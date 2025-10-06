@@ -112,10 +112,10 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 8b1cb75cc6d1447509c0a763722a2c77, type: 3}
   - {fileID: 21300000, guid: 4971c0eddac0442feb3ad1e1d081899a, type: 3}
   - {fileID: 21300000, guid: e53de7ed6e7684a15994ad937d752bdb, type: 3}
-  maxConcurrentImages: 10
-  spawnIntervalMin: 0.5
+  maxConcurrentImages: 20
+  spawnIntervalMin: 0.89
   spawnIntervalMax: 2
-  fallSpeedMin: 200
+  fallSpeedMin: 500
   fallSpeedMax: 800
   rotationSpeedMin: -30
   rotationSpeedMax: 30
@@ -210,7 +210,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   loadingCanvas: {fileID: 4162312185936622066}
   fadeDuration: 0.5
-  minLoadingTime: 2
+  minLoadingTime: 5
 --- !u!1 &953705855528707981
 GameObject:
   m_ObjectHideFlags: 0

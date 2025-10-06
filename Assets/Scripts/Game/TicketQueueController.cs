@@ -26,6 +26,9 @@ public class TicketQueueController : MonoBehaviour
     private bool waitingForPlayerInput = false;
     private int totalAudienceCount = 0;
     private int processedAudienceCount = 0;
+    
+    // 新增：防止重复判断的标志
+    private bool isProcessingTicket = false;
 
     void Start()
     {
@@ -126,6 +129,9 @@ public class TicketQueueController : MonoBehaviour
         
         AudioManager.Instance.PlaySfx("Ticket_in");
 
+        // 重置处理标志
+        isProcessingTicket = false;
+
         // 使用关卡配置的滑入动画持续时间
         currentTicketUI.transform.DOMove(ticketDisplayPoint.position, currentDay.ticketSlideInDuration)
             .SetEase(Ease.OutBack)
@@ -206,6 +212,7 @@ public class TicketQueueController : MonoBehaviour
                 }
 
                 waitingForPlayerInput = false;
+                isProcessingTicket = false; // 重置处理标志
             
                 // 使用关卡配置的票间隔时间
                 Invoke(nameof(NextTicket), currentDay.timeBetweenTickets);
@@ -214,7 +221,13 @@ public class TicketQueueController : MonoBehaviour
     
     public void AcceptCurrentTicket()
     {
-        if (!waitingForPlayerInput || currentTicketUI == null) return;
+        // 防止重复处理：如果正在处理中或者票已经不在等待输入状态，直接返回
+        if (isProcessingTicket || !waitingForPlayerInput || currentTicketUI == null) 
+            return;
+
+        // 设置处理标志，防止重复点击
+        isProcessingTicket = true;
+        waitingForPlayerInput = false; // 立即禁用输入，防止再次点击
 
         // 传递当前关卡数据给验证器
         var result = validator.ValidateAccept(currentTicket, scheduleClock, currentDay);
@@ -244,7 +257,13 @@ public class TicketQueueController : MonoBehaviour
 
     public void RejectCurrentTicket()
     {
-        if (!waitingForPlayerInput || currentTicketUI == null) return;
+        // 防止重复处理：如果正在处理中或者票已经不在等待输入状态，直接返回
+        if (isProcessingTicket || !waitingForPlayerInput || currentTicketUI == null) 
+            return;
+
+        // 设置处理标志，防止重复点击
+        isProcessingTicket = true;
+        waitingForPlayerInput = false; // 立即禁用输入，防止再次点击
 
         Debug.Log($"[TicketQueueController] 拒绝票: {currentTicket.filmTitle} {currentTicket.showTime} | 特殊={currentTicket.special}");
     
@@ -267,7 +286,7 @@ public class TicketQueueController : MonoBehaviour
     
     public bool IsWaitingForInput()
     {
-        return waitingForPlayerInput;
+        return waitingForPlayerInput && !isProcessingTicket;
     }
     
     private int CalculateTotalAudienceCount()
@@ -299,7 +318,7 @@ public class TicketQueueController : MonoBehaviour
     /// </summary>
     public bool ValidateCurrentTicketWithUVLight()
     {
-        if (currentTicketUI == null || !waitingForPlayerInput) 
+        if (currentTicketUI == null || !waitingForPlayerInput || isProcessingTicket) 
             return false;
     
         // 调用验证器检查票是否有效

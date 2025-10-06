@@ -12,23 +12,67 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6063c4d8d6a444808ba2001f03d35b90, type: 3}
   m_Name: Level_2
   m_EditorClassIdentifier: 
-  levelName: 04/10/25
-  levelStartTime: 08:00
+  levelName: 05/10/25
+  levelDate: 05/10/25
+  levelStartTime: 09:40
   shows:
-  - filmTitle: La La Lamb
+  - filmTitle: The Faults in Our Starbucks
     startTime: 10:00
     audienceCount: 5
-    ticketPrice: 1
+    ticketPrice: 10
+    specialEvents:
+    - type: 6
+      count: 1
+      customFilmTitle: A Starbuck is Born
+      customShowTime: 
+      customShowDate: 
+      shouldAccept: 0
+      targetFilmTitle: 
+      targetShowTime: 
+      targetShowDate: 
+      mainTicketImage: {fileID: 0}
+      stubImage: {fileID: 0}
+  - filmTitle: Nezha
+    startTime: 13:40
+    audienceCount: 2
+    ticketPrice: 15
     specialEvents: []
   - filmTitle: La La Lamb
-    startTime: 13:00
+    startTime: 13:55
     audienceCount: 3
-    ticketPrice: 1
-    specialEvents: []
-  - filmTitle: La La Lamb
-    startTime: 15:00
+    ticketPrice: 12
+    specialEvents:
+    - type: 4
+      count: 1
+      customFilmTitle: 
+      customShowTime: 
+      customShowDate: 
+      shouldAccept: 0
+      targetFilmTitle: 
+      targetShowTime: 
+      targetShowDate: 
+      mainTicketImage: {fileID: 21300000, guid: 526033c123af14e99a089d2b8f50d344, type: 3}
+      stubImage: {fileID: 21300000, guid: bd6b9778b540b4d1b9ab2c909c5a589b, type: 3}
+  - filmTitle: Cat-anic
+    startTime: 17:20
     audienceCount: 5
-    ticketPrice: 1
+    ticketPrice: 15
+    specialEvents:
+    - type: 0
+      count: 1
+      customFilmTitle: 
+      customShowTime: 
+      customShowDate: 
+      shouldAccept: 0
+      targetFilmTitle: 
+      targetShowTime: 
+      targetShowDate: 
+      mainTicketImage: {fileID: 21300000, guid: f00a538c4a4f64a9aa9db36001552af3, type: 3}
+      stubImage: {fileID: 21300000, guid: 475c46313be654c38aa9fc0c9008ff8c, type: 3}
+  - filmTitle: The Whale of Wall Street
+    startTime: 17:35
+    audienceCount: 3
+    ticketPrice: 12
     specialEvents: []
   timeScale: 1
   timeBetweenShows: 2

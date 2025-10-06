@@ -6,6 +6,13 @@ public class TicketValidator : MonoBehaviour
     public int penaltyEarly = 5;      // 提前检票惩罚
     public int penaltyInvalid = 10;   // 其他无效票惩罚
     
+    public enum ShakeType
+    {
+        Light,
+        Medium,
+        Heavy
+    }
+    
     private int GetCurrentTicketPrice(TicketData ticket, ScheduleClock clock, DaySchedule currentDay)
     {
         if (currentDay == null) return 1;
@@ -32,6 +39,7 @@ public class TicketValidator : MonoBehaviour
         if (!nameMatch)
         {
             Debug.Log($"[ValidateAccept] 拒绝原因: 片名错误");
+            TriggerCameraShake(ShakeType.Medium); // 添加震动
             return new CheckResult
             {
                 outcome = TicketOutcome.WrongAccept, 
@@ -44,6 +52,7 @@ public class TicketValidator : MonoBehaviour
         if (!timeMatch)
         {
             Debug.Log($"[ValidateAccept] 拒绝原因: 时间不匹配");
+            TriggerCameraShake(ShakeType.Medium); // 添加震动
             return new CheckResult
             {
                 outcome = TicketOutcome.WrongAccept, 
@@ -56,6 +65,7 @@ public class TicketValidator : MonoBehaviour
         if (tooEarly)
         {
             Debug.Log($"[ValidateAccept] 拒绝原因: 提前检票");
+            TriggerCameraShake(ShakeType.Light); // 添加震动
             return new CheckResult
             { 
                 outcome = TicketOutcome.WrongAccept, 
@@ -69,6 +79,7 @@ public class TicketValidator : MonoBehaviour
         if (!isTicketValid)
         {
             Debug.Log($"[ValidateAccept] 拒绝原因: 无效票类型");
+            TriggerCameraShake(ShakeType.Heavy); // 添加震动
             return new CheckResult
             {
                 outcome = TicketOutcome.WrongAccept, 
@@ -149,12 +160,22 @@ public class TicketValidator : MonoBehaviour
 
         // 如果票是有效的且匹配，但被拒绝了，这是错误的拒绝
         Debug.Log($"[ValidateReject] 错误拒绝: 应该接受的票");
+        TriggerCameraShake(ShakeType.Heavy); // 添加震动
         return new CheckResult
         { 
             outcome = TicketOutcome.WrongReject, 
             incomeDelta = 0, 
             reason = "Should have admitted" 
         };
+    }
+
+    /// <summary>
+    /// 触发相机震动
+    /// </summary>
+    private void TriggerCameraShake(ShakeType shakeType)
+    {
+        // 通过事件中心发送震动消息
+        MsgCenter.SendMsg(MsgConst.MSG_CAMERA_SHAKE, shakeType);
     }
 
     /// <summary>

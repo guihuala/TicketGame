@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using System.Collections;
+using System.Text;
 
 public class TicketVisual : MonoBehaviour
 {
@@ -21,6 +22,14 @@ public class TicketVisual : MonoBehaviour
     [Header("图片替换")]
     [SerializeField] private Image mainTicketImage;
     [SerializeField] private Image stubImage;
+    
+    [Header("主票字体设置")]
+    [SerializeField] private int mainNormalFontSize = 24;
+    [SerializeField] private int mainEmphasizedFontSize = 28; // 主票强调字母的字号
+    
+    [Header("副券字体设置")]
+    [SerializeField] private int stubNormalFontSize = 18;
+    [SerializeField] private int stubEmphasizedFontSize = 22; // 副券强调字母的字号
     
     private Color defaultColor;
     private Vector3 defaultStubPos;
@@ -125,15 +134,15 @@ public class TicketVisual : MonoBehaviour
 
     private void SetTextInformation(TicketData t)
     {
-        // 设置基本信息
+        // 设置主票信息
         if (titleText) 
         {
-            titleText.text = t.filmTitle;
+            titleText.text = FormatTitleWithEmphasizedLetters(t.filmTitle, true);
             titleText.enabled = true;
         }
         if (timeText)
         {
-            timeText.text = $"screen . {t.showTime} . {t.showDate}";
+            timeText.text = $"screen . {t.showTime} . {FormatDateWithEmphasizedMonth(t.showDate, true)}";
             timeText.enabled = true;
         }
         if (seatText) 
@@ -145,12 +154,12 @@ public class TicketVisual : MonoBehaviour
         // 设置副券信息
         if (stubTitleText) 
         {
-            stubTitleText.text = t.filmTitle;
+            stubTitleText.text = FormatTitleWithEmphasizedLetters(t.filmTitle, false);
             stubTitleText.enabled = true;
         }
         if (subTimeText) 
         {
-            subTimeText.text = $"screen . {t.showTime} . {t.showDate}";
+            subTimeText.text = $"screen . {t.showTime} . {FormatDateWithEmphasizedMonth(t.showDate, false)}";
             subTimeText.enabled = true;
         }
         if (subSeatText) 
@@ -163,6 +172,74 @@ public class TicketVisual : MonoBehaviour
             priceText.text = "PRICE: $" + GetTicketPrice(t);
             priceText.enabled = true;
         }
+    }
+
+    /// <summary>
+    /// 格式化标题，将首字母和空格后的第一个字母字号放大
+    /// </summary>
+    /// <param name="title">原始标题</param>
+    /// <param name="isMainTicket">是否为主票（true=主票，false=副券）</param>
+    private string FormatTitleWithEmphasizedLetters(string title, bool isMainTicket)
+    {
+        if (string.IsNullOrEmpty(title))
+            return title;
+
+        int normalSize = isMainTicket ? mainNormalFontSize : stubNormalFontSize;
+        int emphasizedSize = isMainTicket ? mainEmphasizedFontSize : stubEmphasizedFontSize;
+
+        StringBuilder formattedTitle = new StringBuilder();
+        bool isFirstChar = true;
+
+        for (int i = 0; i < title.Length; i++)
+        {
+            char currentChar = title[i];
+            
+            if (isFirstChar || (i > 0 && title[i - 1] == ' '))
+            {
+                // 首字母或空格后的第一个字母 - 使用大字号的富文本标签
+                formattedTitle.Append($"<size={emphasizedSize}>{currentChar}</size>");
+                isFirstChar = false;
+            }
+            else
+            {
+                // 其他字母 - 使用正常字号
+                formattedTitle.Append(currentChar);
+            }
+        }
+
+        return formattedTitle.ToString();
+    }
+
+    /// <summary>
+    /// 格式化日期，将月份的首字母字号放大
+    /// </summary>
+    /// <param name="date">原始日期（格式：Month/yy/dd）</param>
+    /// <param name="isMainTicket">是否为主票（true=主票，false=副券）</param>
+    private string FormatDateWithEmphasizedMonth(string date, bool isMainTicket)
+    {
+        if (string.IsNullOrEmpty(date))
+            return date;
+        
+        int emphasizedSize = stubEmphasizedFontSize;
+
+        // 分割日期部分
+        string[] parts = date.Split('/');
+        if (parts.Length == 3)
+        {
+            string month = parts[0];
+            string year = parts[1];
+            string day = parts[2];
+
+            // 只对月份的首字母进行强调
+            if (month.Length > 0)
+            {
+                string emphasizedMonth = $"<size={emphasizedSize}>{month[0]}</size>" + month.Substring(1);
+                return $"{emphasizedMonth}/{year}/{day}";
+            }
+        }
+
+        // 如果格式不正确，返回原始日期
+        return date;
     }
     
     private Sprite GetSpecialEventMainImage(SpecialEventType eventType)
