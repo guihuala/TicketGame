@@ -28,10 +28,13 @@ public class TicketQueueController : MonoBehaviour
     private int processedAudienceCount = 0;
     
     private bool isProcessingTicket = false;
-
-    void Start()
+    
+    /// <summary>
+    /// 由 GameManager 调用的初始化方法
+    /// </summary>
+    public void Initialize()
     {
-        currentDay = generator.GetCurrentDay();
+        currentDay = generator.GetCurrentLevel();
         showIndex = 0;
         
         // 初始化统计
@@ -40,8 +43,10 @@ public class TicketQueueController : MonoBehaviour
         
         ApplyLevelTimeSettings();
         StartShow();
+        
+        Debug.Log("[TicketQueueController] 初始化完成");
     }
-
+    
     private void ApplyLevelTimeSettings()
     {
         if (currentDay != null)
@@ -50,14 +55,31 @@ public class TicketQueueController : MonoBehaviour
             TimeManager.Instance.SetTimeFactor(currentDay.timeScale);
         }
     }
+
+    /// <summary>
+    /// 重置时间系统到当前关卡的开始时间
+    /// </summary>
+    private void ResetScheduleClock()
+    {
+        if (currentDay != null && scheduleClock != null)
+        {
+            scheduleClock.SetLevelStartTime(currentDay.levelStartTime);
+            Debug.Log($"[TicketQueueController] 重置时间系统: {currentDay.levelStartTime}");
+        }
+    }
     
     private void StartShow()
     {
-        currentDay = generator.GetCurrentDay();
+        currentDay = generator.GetCurrentLevel();
         if (currentDay == null)
         {
             MsgCenter.SendMsgAct(MsgConst.MSG_GAME_OVER);
             return;
+        }
+        
+        if (showIndex == 0)
+        {
+            ResetScheduleClock();
         }
 
         if (showIndex >= currentDay.shows.Count)
@@ -67,17 +89,11 @@ public class TicketQueueController : MonoBehaviour
             return;
         }
 
-        // 设置关卡开始时间（只在第一场开始时设置）
-        if (showIndex == 0)
-        {
-            scheduleClock.SetLevelStartTime(currentDay.levelStartTime);
-        }
-
         var show = currentDay.shows[showIndex];
         currentQueue = generator.BuildQueueForShow(show);
         scheduleClock.SetTargetShow(show.filmTitle, show.startTime);
         showActive = true;
-        
+    
         MsgCenter.SendMsg(MsgConst.MSG_SHOW_START, show.filmTitle, show.startTime);
 
         // 显示场次开始提示

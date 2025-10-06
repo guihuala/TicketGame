@@ -12,9 +12,9 @@ public class ScheduleClock : MonoBehaviour
 
     public void SetLevelStartTime(string startTime)
     {
-        if (DateTime.TryParseExact(startTime, "HH:mm", 
-            CultureInfo.InvariantCulture, 
-            DateTimeStyles.None, out DateTime time))
+        if (DateTime.TryParseExact(startTime, "HH:mm",
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out DateTime time))
         {
             levelStartTimeSeconds = (float)(time.TimeOfDay.TotalSeconds);
             simSeconds = levelStartTimeSeconds; // 设置初始时间

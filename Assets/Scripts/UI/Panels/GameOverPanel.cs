@@ -201,9 +201,9 @@ public class GameOverPanel : BasePanel
         if (ticketGenerator == null) return false;
         
         // 临时设置关卡索引来检查是否存在
-        int originalIndex = ticketGenerator.GetCurrentDay() != null ? currentLevelIndex : -1;
+        int originalIndex = ticketGenerator.GetCurrentLevel() != null ? currentLevelIndex : -1;
         ticketGenerator.SetLevel(levelIndex);
-        bool exists = ticketGenerator.GetCurrentDay() != null;
+        bool exists = ticketGenerator.GetCurrentLevel() != null;
         
         // 恢复原始索引
         if (originalIndex >= 0)

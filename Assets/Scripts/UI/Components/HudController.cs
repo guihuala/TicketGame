@@ -88,7 +88,7 @@ public class HudController : MonoBehaviour
     /// </summary>
     private void UpdateCurrentLevelDate()
     {
-        DaySchedule currentDay = ticketGenerator.GetCurrentDay();
+        DaySchedule currentDay = ticketGenerator.GetCurrentLevel();
         if (currentDay != null)
         {
             currentLevelDate = currentDay.levelDate;
@@ -145,7 +145,7 @@ public class HudController : MonoBehaviour
 
     private void InitializeShows()
     {
-        DaySchedule currentDay = ticketGenerator.GetCurrentDay();
+        DaySchedule currentDay = ticketGenerator.GetCurrentLevel();
         if (currentDay != null)
         {
             allShows.Clear();

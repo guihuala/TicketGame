@@ -4,6 +4,7 @@ public class GameManager : Singleton<GameManager>
 {
     public enum GameState
     {
+        Initializing, // 新增：初始化状态
         Playing, // 游戏进行中
         Paused, // 游戏暂停
         GameOver // 游戏结束
@@ -12,21 +13,69 @@ public class GameManager : Singleton<GameManager>
     private GameState currentState;
     private TicketGenerator ticketGenerator;
     private EconomyManager economyManager;
+    private TicketQueueController ticketQueueController;
+    private ScheduleClock scheduleClock;
     private int selectedLevelIndex;
 
     void Start()
     {
+        currentState = GameState.Initializing;
+        InitializeGame();
+    }
+    
+    /// <summary>
+    /// 统一初始化所有模块
+    /// </summary>
+    private void InitializeGame()
+    {
+        Debug.Log("[GameManager] 开始初始化游戏模块...");
+        
+        // 1. 获取组件引用
         ticketGenerator = FindObjectOfType<TicketGenerator>();
         economyManager = FindObjectOfType<EconomyManager>();
+        ticketQueueController = FindObjectOfType<TicketQueueController>();
+        scheduleClock = FindObjectOfType<ScheduleClock>();
+        
+        // 2. 设置关卡索引
         selectedLevelIndex = PlayerPrefs.GetInt("SelectedLevelIndex", 0);
-
-        // 初始化时间管理器
+        Debug.Log($"[GameManager] 设置关卡索引: {selectedLevelIndex}");
+        
+        // 3. 配置 TicketGenerator
+        if (ticketGenerator != null)
+        {
+            ticketGenerator.SetLevel(selectedLevelIndex);
+            Debug.Log("[GameManager] TicketGenerator 配置完成");
+        }
+        else
+        {
+            Debug.LogError("[GameManager] 找不到 TicketGenerator");
+        }
+        
+        // 4. 初始化时间管理器
         TimeManager.Instance.SetTimeFactor(1f);
         TimeManager.Instance.ResumeTime();
-
-        // 加载对应的关卡数据
-        ticketGenerator.SetLevel(selectedLevelIndex);
-        // 启动游戏
+        Debug.Log("[GameManager] 时间管理器初始化完成");
+        
+        // 5. 初始化经济管理器
+        if (economyManager != null)
+        {
+            var currentLevel = ticketGenerator.GetCurrentLevel();
+            if (currentLevel != null)
+            {
+                economyManager.SetCurrentLevel(currentLevel);
+                economyManager.ResetIncome();
+                Debug.Log("[GameManager] EconomyManager 初始化完成");
+            }
+        }
+        
+        // 6. 启动 TicketQueueController
+        if (ticketQueueController != null)
+        {
+            ticketQueueController.Initialize();
+            Debug.Log("[GameManager] TicketQueueController 启动完成");
+        }
+        
+        // 7. 开始游戏
         StartGame();
     }
     
@@ -62,25 +111,19 @@ public class GameManager : Singleton<GameManager>
     // 游戏开始
     private void StartGame()
     {
-        DaySchedule currentLevel = ticketGenerator.GetCurrentDay();
+        DaySchedule currentLevel = ticketGenerator.GetCurrentLevel();
         if (currentLevel != null)
         {
             string hintText = "current level:\n" + ticketGenerator.GetCurrentLevelName();
             MsgCenter.SendMsg(MsgConst.MSG_SHOW_HINT, hintText, 3f);
         
-            // 统一在这里初始化经济管理器
-            if (economyManager != null)
-            {
-                economyManager.SetCurrentLevel(currentLevel);
-                economyManager.ResetIncome();
-            }
-            else
-            {
-                Debug.LogWarning("[GameManager] 找不到 EconomyManager");
-            }
-        
             // 设置时间比例
             TimeManager.Instance.SetTimeFactor(currentLevel.timeScale);
+            
+            Debug.Log($"[GameManager] 游戏开始: {currentLevel.levelName}, 开始时间: {currentLevel.levelStartTime}");
+            
+            // 设置游戏状态为进行中
+            SetGameState(GameState.Playing);
         }
         else
         {
@@ -168,7 +211,7 @@ public class GameManager : Singleton<GameManager>
     
     private int CalculateStars(int totalIncome)
     {
-        DaySchedule currentLevel = ticketGenerator.GetCurrentDay();
+        DaySchedule currentLevel = ticketGenerator.GetCurrentLevel();
         if (currentLevel == null) return 0;
         
         if (totalIncome >= currentLevel.star3Income) return 3;

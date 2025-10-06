@@ -79,7 +79,7 @@ public class TicketGenerator : MonoBehaviour
 
     private TicketData CreateNormalTicket(DaySchedule.Show show)
     {
-        var currentDay = GetCurrentDay();
+        var currentDay = GetCurrentLevel();
         string date = currentDay != null ? currentDay.levelDate : "04/10/25";
         string formattedDate = FormatDateToEnglish(date);
         
@@ -96,7 +96,7 @@ public class TicketGenerator : MonoBehaviour
 
     private TicketData CreateSpecialTicket(DaySchedule.SpecialEventConfig config, DaySchedule.Show show)
     {
-        var currentDay = GetCurrentDay();
+        var currentDay = GetCurrentLevel();
         string ticketDate = currentDay != null ? currentDay.levelDate : "04/10/25";
         
         // 如果有自定义日期，使用自定义日期
@@ -177,15 +177,28 @@ public class TicketGenerator : MonoBehaviour
         return new Queue<TicketData>(list);
     }
 
-    public DaySchedule GetCurrentDay()
+    public DaySchedule GetCurrentLevel()
     {
         if (database == null || database.levels == null || database.levels.Length == 0) return null;
-        return database.levels[Mathf.Clamp(currentLevelIndex, 0, database.levels.Length - 1)];
+        
+        int clampedIndex = Mathf.Clamp(currentLevelIndex, 0, database.levels.Length - 1);
+
+        if (clampedIndex < database.levels.Length)
+        {
+            var level = database.levels[clampedIndex];
+            if (level != null)
+            {
+                Debug.Log($"[TicketGenerator] 加载关卡: {level.levelName}, 开始时间: {level.levelStartTime}，索引{currentLevelIndex}");
+                return level;
+            }
+        }
+    
+        return null;
     }
     
     public string GetCurrentLevelName()
     {
-        var currentDay = GetCurrentDay();
+        var currentDay = GetCurrentLevel();
         return currentDay != null ? currentDay.levelName : "unknown";
     }
 

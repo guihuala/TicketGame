@@ -292,7 +292,7 @@ public class TicketVisual : MonoBehaviour
         TicketGenerator ticketGenerator = FindObjectOfType<TicketGenerator>();
         if (ticketGenerator != null)
         {
-            return ticketGenerator.GetCurrentDay();
+            return ticketGenerator.GetCurrentLevel();
         }
         
         TicketQueueController queueController = FindObjectOfType<TicketQueueController>();
@@ -306,7 +306,7 @@ public class TicketVisual : MonoBehaviour
                 TicketGenerator generator = generatorField.GetValue(queueController) as TicketGenerator;
                 if (generator != null)
                 {
-                    return generator.GetCurrentDay();
+                    return generator.GetCurrentLevel();
                 }
             }
         }
