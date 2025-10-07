@@ -228,9 +228,9 @@ public class GameOverPanel : BasePanel
         GameManager.Instance.ReturnToMainMenu();
     }
 
-    private void OnShopButtonClicked()
+    void OnShopButtonClicked()
     {
-        GameManager.Instance.SetGameState(GameManager.GameState.Playing);
+        // 不要切回 Playing，也不要关 GameOverPanel
         UIManager.Instance.OpenPanel("ShopPanel");
     }
 
