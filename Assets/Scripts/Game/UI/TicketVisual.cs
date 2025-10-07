@@ -96,39 +96,68 @@ public class TicketVisual : MonoBehaviour
     {
         ClearErrorHighlight();
     }
-    
+
+    // 兜底补丁版：确保高亮圈必定实例化并能看到
+    [SerializeField] private Transform debugFallbackParent; // 在 Inspector 拖 TicketPanel 的根 Canvas/RectTransform
+
     private void ShowErrorHighlight(TicketValidator.HighlightType highlightType, string reason)
     {
-        // 先清除现有的高亮
+        // 清除现有高亮
         ClearErrorHighlight();
-        
-        RectTransform targetArea = GetHighlightArea(highlightType);
-        if (targetArea != null && errorHighlightPrefab != null)
+
+        // 查找目标区域
+        RectTransform area = GetHighlightArea(highlightType);
+        Debug.Log($"[Highlight] type={highlightType}, area={(area ? area.name : "NULL")}, prefab={(errorHighlightPrefab ? errorHighlightPrefab.name : "NULL")}, reason={reason}");
+
+        if (errorHighlightPrefab == null)
         {
-            // 实例化高亮图标
-            currentHighlight = Instantiate(errorHighlightPrefab, transform);
-            RectTransform highlightRect = currentHighlight.GetComponent<RectTransform>();
-            
-            if (highlightRect != null)
-            {
-                // 设置高亮图标的位置和大小
-                highlightRect.SetParent(targetArea, false);
-                highlightRect.anchorMin = new Vector2(0.5f, 0.5f);
-                highlightRect.anchorMax = new Vector2(0.5f, 0.5f);
-                highlightRect.pivot = new Vector2(0.5f, 0.5f);
-                highlightRect.anchoredPosition = Vector2.zero;
-                highlightRect.sizeDelta = new Vector2(40, 40); // 图标大小
-                
-                // 添加动画效果
-                PlayHighlightAnimation(currentHighlight);
-                
-                // 定时自动清除
-                StartCoroutine(AutoClearHighlight());
-                
-                Debug.Log($"显示错误高亮: {highlightType}, 原因: {reason}");
-            }
+            Debug.LogError("[Highlight] errorHighlightPrefab 未设置！");
+            return;
         }
+
+        // --- 实例化 ---
+        currentHighlight = Instantiate(errorHighlightPrefab);
+        currentHighlight.name = $"Circle_{highlightType}";
+        currentHighlight.SetActive(true);
+
+        // --- 决定父节点 ---
+        Transform parent = (area != null && area.gameObject.activeInHierarchy)
+            ? area
+            : debugFallbackParent != null ? debugFallbackParent : transform;
+
+        RectTransform rt = currentHighlight.transform as RectTransform;
+        rt.SetParent(parent, false);
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.localScale = Vector3.one;
+
+        // --- 尺寸兜底 ---
+        if (rt.sizeDelta.x < 80f || rt.sizeDelta.y < 80f)
+            rt.sizeDelta = new Vector2(120, 120);
+
+        // --- 层级兜底 ---
+        rt.SetAsLastSibling();
+
+        // --- 可见性兜底 ---
+        var img = currentHighlight.GetComponent<Image>();
+        if (img)
+        {
+            var c = img.color; c.a = 1f; img.color = c;
+        }
+        else
+        {
+            Debug.LogWarning("[Highlight] Circle 预制体上没有 UI Image 组件！");
+        }
+
+        // --- Canvas 信息打印 ---
+        var canvas = parent.GetComponentInParent<Canvas>();
+        if (canvas != null)
+            Debug.Log($"[Highlight] Canvas={canvas.name}, order={canvas.sortingOrder}, override={canvas.overrideSorting}");
+
+        // --- 暂时不销毁，确认能看到再恢复 ---
+        // StartCoroutine(AutoClearHighlight());
     }
+
 
     /// <summary>
     /// 获取对应的高亮区域
