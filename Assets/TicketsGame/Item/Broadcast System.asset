@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: broadcast_system
   itemName: Broadcast System
   description: Triggers an announcement that delays the next movie by 15 minutes.
-  price: 150
+  price: 100
   icon: {fileID: 0}
   type: 0
   uses: 1

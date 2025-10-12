@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: vip_pass
   itemName: VIP Pass
   description: Automatically approves one guest without manual checking.
-  price: 100
+  price: 60
   icon: {fileID: 0}
   type: 0
   uses: 1

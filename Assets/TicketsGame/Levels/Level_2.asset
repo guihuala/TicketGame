@@ -74,7 +74,7 @@ MonoBehaviour:
     audienceCount: 3
     ticketPrice: 12
     specialEvents: []
-  timeScale: 1.67
+  timeScale: 2.5
   timeBetweenShows: 2
   timeBetweenTickets: 0.5
   ticketSlideInDuration: 0.5

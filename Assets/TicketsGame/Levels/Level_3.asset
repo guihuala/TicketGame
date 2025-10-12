@@ -133,7 +133,7 @@ MonoBehaviour:
       targetShowDate: 
       mainTicketImage: {fileID: 21300000, guid: b7ec975d65ee5471eae9d28faf43355f, type: 3}
       stubImage: {fileID: 21300000, guid: 3a236f4c8da994dceb3f43cdfb7bcfa2, type: 3}
-  timeScale: 1.67
+  timeScale: 2.5
   timeBetweenShows: 2
   timeBetweenTickets: 0.5
   ticketSlideInDuration: 0.5
